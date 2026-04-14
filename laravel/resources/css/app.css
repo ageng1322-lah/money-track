@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+/* Scan all blade files for classes */
+@source "../views";
+@source "../../app/Http/Livewire";
