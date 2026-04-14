@@ -1,33 +1,18 @@
 // lib/features/transaction/presentation/transaction_list_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../shared/providers/providers.dart';
 import '../domain/transaction_entity.dart';
+import 'transaction_list_controller.dart';
 
-final _transactionListProvider = FutureProvider.autoDispose<PaginatedTransactions>((ref) async {
-  final filter = ref.watch(transactionFilterProvider);
-  final repo   = ref.read(transactionRepositoryProvider);
-  return repo.getTransactions(
-    type:       filter.type,
-    categoryId: filter.categoryId,
-    from:       filter.from,
-    to:         filter.to,
-    search:     filter.search,
-    sort:       filter.sort,
-    order:      filter.order,
-  );
-});
-
-class TransactionListScreen extends ConsumerWidget {
+class TransactionListScreen extends GetView<TransactionListController> {
   const TransactionListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final txAsync = ref.watch(_transactionListProvider);
-    final filter  = ref.watch(transactionFilterProvider);
+  Widget build(BuildContext context) {
+    // Ensure controller is initialized
+    final controller = Get.put(TransactionListController());
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -44,11 +29,11 @@ class TransactionListScreen extends ConsumerWidget {
                 Row(children: [
                   IconButton(
                     icon: const Icon(Icons.picture_as_pdf_outlined, color: AppTheme.primary),
-                    onPressed: () => _exportPdf(context, ref),
+                    onPressed: () => _exportPdf(context),
                     tooltip: 'Export PDF',
                   ),
                   GestureDetector(
-                    onTap: () => context.push('/transactions/add'),
+                    onTap: () => Get.toNamed('/transactions/add'),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
@@ -71,46 +56,26 @@ class TransactionListScreen extends ConsumerWidget {
           // Filter chips
           SizedBox(
             height: 48,
-            child: ListView(
+            child: Obx(() => ListView(
               padding:      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               scrollDirection: Axis.horizontal,
               children: [
-                _FilterChip(label: 'Semua',       selected: filter.type == null,
-                  onTap: () => ref.read(transactionFilterProvider.notifier)
-                      .state = filter.copyWith(clearType: true)),
-                _FilterChip(label: 'Pemasukan',   selected: filter.type == 'income',
-                  onTap: () => ref.read(transactionFilterProvider.notifier)
-                      .state = filter.copyWith(type: 'income')),
-                _FilterChip(label: 'Pengeluaran', selected: filter.type == 'expense',
-                  onTap: () => ref.read(transactionFilterProvider.notifier)
-                      .state = filter.copyWith(type: 'expense')),
-                _FilterChip(label: 'Terbaru → Lama', selected: filter.order == 'desc',
-                  onTap: () => ref.read(transactionFilterProvider.notifier)
-                      .state = filter.copyWith(order: 'desc')),
+                _FilterChip(label: 'Semua',       selected: controller.type.value == null,
+                  onTap: () => controller.setType(null)),
+                _FilterChip(label: 'Pemasukan',   selected: controller.type.value == 'income',
+                  onTap: () => controller.setType('income')),
+                _FilterChip(label: 'Pengeluaran', selected: controller.type.value == 'expense',
+                  onTap: () => controller.setType('expense')),
+                _FilterChip(label: 'Terbaru → Lama', selected: controller.order.value == 'desc',
+                  onTap: () => controller.setOrder('desc')),
               ],
-            ),
+            )),
           ),
 
           // List
-          Expanded(child: txAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error:   (e, _) => Center(child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.error_outline, color: AppTheme.textSecondary, size: 48),
-                const SizedBox(height: 12),
-                Text(e.toString(),
-                  style: const TextStyle(color: AppTheme.textSecondary),
-                  textAlign: TextAlign.center),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(_transactionListProvider),
-                  child: const Text('Coba lagi'),
-                ),
-              ],
-            )),
-            data: (paginated) {
-              if (paginated.data.isEmpty) {
+          Expanded(child: controller.obx(
+            (paginated) {
+              if (paginated == null || paginated.data.isEmpty) {
                 return const Center(child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -150,51 +115,62 @@ class TransactionListScreen extends ConsumerWidget {
                       ),
                       ...txList.map((tx) => _TransactionTile(
                         tx: tx,
-                        onTap:    () => context.push('/transactions/edit/${tx.id}'),
-                        onDelete: () => _confirmDelete(context, ref, tx.id),
+                        onTap:    () => Get.toNamed('/transactions/edit/${tx.id}'),
+                        onDelete: () => _confirmDelete(context, tx.id),
                       )),
                     ],
                   );
                 },
               );
             },
+            onLoading: const Center(child: CircularProgressIndicator()),
+            onError: (error) => Center(child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, color: AppTheme.textSecondary, size: 48),
+                const SizedBox(height: 12),
+                Text(error ?? 'Terjadi kesalahan',
+                  style: const TextStyle(color: AppTheme.textSecondary),
+                  textAlign: TextAlign.center),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => controller.fetchTransactions(),
+                  child: const Text('Coba lagi'),
+                ),
+              ],
+            )),
           )),
         ]),
       ),
     );
   }
 
-  void _exportPdf(BuildContext context, WidgetRef ref) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Mengekspor laporan PDF...'),
-      backgroundColor: AppTheme.primary,
-    ));
+  void _exportPdf(BuildContext context) {
+    Get.snackbar('Berhasil', 'Mengekspor laporan PDF...', 
+      backgroundColor: AppTheme.primary, colorText: Colors.white);
   }
 
-  void _confirmDelete(BuildContext context, WidgetRef ref, int id) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
+  void _confirmDelete(BuildContext context, int id) {
+    Get.dialog(
+      AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Hapus transaksi?'),
         content: const Text('Tindakan ini tidak dapat dibatalkan.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Get.back(),
             child: const Text('Batal'),
           ),
           ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await ref.read(transactionRepositoryProvider).deleteTransaction(id);
-              ref.invalidate(_transactionListProvider);
-              ref.read(dashboardProvider.notifier).refresh();
+            onPressed: () {
+              Get.back();
+              controller.deleteTransaction(id);
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.expense),
             child: const Text('Hapus'),
           ),
         ],
-      ),
+      )
     );
   }
 }

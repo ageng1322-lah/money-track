@@ -1,14 +1,14 @@
 // lib/shared/widgets/main_scaffold.dart
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 import '../../core/theme/app_theme.dart';
 
 class MainScaffold extends StatelessWidget {
   final Widget child;
   const MainScaffold({super.key, required this.child});
 
-  int _getCurrentIndex(BuildContext context) {
-    final location = GoRouterState.of(context).matchedLocation;
+  int _getCurrentIndex() {
+    final location = Get.currentRoute;
     if (location.startsWith('/transactions')) return 1;
     if (location.startsWith('/profile'))      return 2;
     return 0;
@@ -16,7 +16,7 @@ class MainScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentIndex = _getCurrentIndex(context);
+    final currentIndex = _getCurrentIndex();
 
     return Scaffold(
       body: child,
@@ -37,13 +37,13 @@ class MainScaffold extends StatelessWidget {
               children: [
                 _NavItem(icon: Icons.home_outlined,      activeIcon: Icons.home,
                   label: 'Home',    index: 0, current: currentIndex,
-                  onTap: () => context.go('/dashboard')),
+                  onTap: () => Get.offNamed('/dashboard')),
                 _NavItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long,
                   label: 'Catatan', index: 1, current: currentIndex,
-                  onTap: () => context.go('/transactions')),
+                  onTap: () => Get.offNamed('/transactions')),
                 _NavItem(icon: Icons.person_outline,     activeIcon: Icons.person,
                   label: 'Profil',  index: 2, current: currentIndex,
-                  onTap: () => context.go('/profile')),
+                  onTap: () => Get.offNamed('/profile')),
               ],
             ),
           ),

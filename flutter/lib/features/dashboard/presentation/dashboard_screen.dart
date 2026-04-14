@@ -1,73 +1,67 @@
 // lib/features/dashboard/presentation/dashboard_screen.dart
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../shared/providers/providers.dart';
+import '../../auth/presentation/auth_controller.dart';
+import 'dashboard_controller.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends GetView<DashboardController> {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final dashAsync = ref.watch(dashboardProvider);
-    final user      = ref.watch(authProvider).valueOrNull;
+  Widget build(BuildContext context) {
+    // Ensure DashboardController is loaded
+    final dashboardController = Get.put(DashboardController());
+    final authController = Get.find<AuthController>();
 
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
-        child: dashAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error:   (e, _) => Center(child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Gagal memuat data', style: TextStyle(color: AppTheme.textSecondary)),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () => ref.read(dashboardProvider.notifier).refresh(),
-                child: const Text('Coba lagi'),
-              ),
-            ],
-          )),
-          data: (data) {
+        child: dashboardController.obx(
+          (data) {
+            if (data == null) return const Center(child: Text('Data tidak tersedia'));
+            
             final summary  = data['summary']    as Map<String, dynamic>;
             final chart    = (data['chart_data'] as List).cast<Map<String, dynamic>>();
             final recent   = (data['recent']    as List).cast<Map<String, dynamic>>();
 
             return RefreshIndicator(
               color:  AppTheme.primary,
-              onRefresh: () => ref.read(dashboardProvider.notifier).refresh(),
+              onRefresh: () => dashboardController.refreshDashboard(),
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 children: [
                   // Header
-                  Row(children: [
-                    Expanded(child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Halo, ${user?.name.split(' ').first ?? 'Pengguna'} 👋',
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700,
-                            color: AppTheme.textPrimary)),
-                        const SizedBox(height: 4),
-                        Text(DateFormatter.formatMonth(
-                          summary['month'] as int, summary['year'] as int),
-                          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
-                      ],
-                    )),
-                    CircleAvatar(
-                      radius:     22,
-                      backgroundColor: AppTheme.primaryLight,
-                      backgroundImage: user?.photoUrl != null
-                          ? NetworkImage(user!.photoUrl!) : null,
-                      child: user?.photoUrl == null
-                          ? Text(user?.name[0].toUpperCase() ?? '?',
-                              style: const TextStyle(color: AppTheme.primary,
-                                fontWeight: FontWeight.w700, fontSize: 17))
-                          : null,
-                    ),
-                  ]),
+                  Obx(() {
+                    final user = authController.user.value;
+                    return Row(children: [
+                      Expanded(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Halo, ${user?.name.split(' ').first ?? 'Pengguna'} 👋',
+                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary)),
+                          const SizedBox(height: 4),
+                          Text(DateFormatter.formatMonth(
+                            summary['month'] as int, summary['year'] as int),
+                            style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+                        ],
+                      )),
+                      CircleAvatar(
+                        radius:     22,
+                        backgroundColor: AppTheme.primaryLight,
+                        backgroundImage: user?.photoUrl != null
+                            ? NetworkImage(user!.photoUrl!) : null,
+                        child: user?.photoUrl == null
+                            ? Text(user?.name[0].toUpperCase() ?? '?',
+                                style: const TextStyle(color: AppTheme.primary,
+                                  fontWeight: FontWeight.w700, fontSize: 17))
+                            : null,
+                      ),
+                    ]);
+                  }),
                   const SizedBox(height: 24),
 
                   // Balance Card
@@ -86,7 +80,7 @@ class DashboardScreen extends ConsumerWidget {
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,
                           color: AppTheme.textPrimary)),
                       GestureDetector(
-                        onTap: () => context.go('/transactions'),
+                        onTap: () => Get.toNamed('/transactions'),
                         child: const Text('Lihat semua',
                           style: TextStyle(color: AppTheme.primary, fontSize: 13,
                             fontWeight: FontWeight.w500)),
@@ -99,6 +93,18 @@ class DashboardScreen extends ConsumerWidget {
               ),
             );
           },
+          onLoading: const Center(child: CircularProgressIndicator()),
+          onError: (error) => Center(child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Gagal memuat data', style: TextStyle(color: AppTheme.textSecondary)),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () => dashboardController.refreshDashboard(),
+                child: const Text('Coba lagi'),
+              ),
+            ],
+          )),
         ),
       ),
     );

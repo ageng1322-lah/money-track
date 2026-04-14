@@ -1,108 +1,28 @@
 // lib/features/transaction/presentation/transaction_form_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../shared/providers/providers.dart';
+import 'transaction_form_controller.dart';
 
-class TransactionFormScreen extends ConsumerStatefulWidget {
+class TransactionFormScreen extends GetView<TransactionFormController> {
   final int? transactionId;
   const TransactionFormScreen({super.key, this.transactionId});
 
   @override
-  ConsumerState<TransactionFormScreen> createState() => _TransactionFormState();
-}
-
-class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
-  final _formKey     = GlobalKey<FormState>();
-  final _titleCtrl   = TextEditingController();
-  final _amountCtrl  = TextEditingController();
-  final _noteCtrl    = TextEditingController();
-
-  String   _type        = 'expense';
-  DateTime _date        = DateTime.now();
-  int?     _categoryId;
-  bool     _loading     = false;
-  String?  _error;
-
-  bool get isEdit => widget.transactionId != null;
-
-  @override
-  void dispose() {
-    _titleCtrl.dispose();
-    _amountCtrl.dispose();
-    _noteCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() { _loading = true; _error = null; });
-
-    try {
-      final repo   = ref.read(transactionRepositoryProvider);
-      final amount = double.parse(_amountCtrl.text.replaceAll('.', ''));
-
-      if (isEdit) {
-        await repo.updateTransaction(widget.transactionId!, {
-          'title':       _titleCtrl.text.trim(),
-          'amount':      amount,
-          'type':        _type,
-          'date':        DateFormatter.toApiDate(_date),
-          'category_id': _categoryId,
-          'note':        _noteCtrl.text.isEmpty ? null : _noteCtrl.text.trim(),
-        });
-      } else {
-        await repo.createTransaction(
-          title:      _titleCtrl.text.trim(),
-          amount:     amount,
-          type:       _type,
-          date:       DateFormatter.toApiDate(_date),
-          categoryId: _categoryId,
-          note:       _noteCtrl.text.isEmpty ? null : _noteCtrl.text.trim(),
-        );
-      }
-
-      ref.read(dashboardProvider.notifier).refresh();
-      if (mounted) context.pop();
-    } catch (e) {
-      setState(() => _error = e.toString());
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context:    context,
-      initialDate: _date,
-      firstDate:   DateTime(2020),
-      lastDate:    DateTime.now(),
-      builder: (context, child) => Theme(
-        data: ThemeData.light().copyWith(
-          colorScheme: const ColorScheme.light(primary: AppTheme.primary),
-        ),
-        child: child!,
-      ),
-    );
-    if (picked != null) setState(() => _date = picked);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // Initialize controller and set transactionId
+    final controller = Get.put(TransactionFormController());
+    controller.transactionId = transactionId;
+
+    final _formKey = GlobalKey<FormState>();
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title:    Text(isEdit ? 'Edit Transaksi' : 'Tambah Transaksi'),
-        leading:  IconButton(icon: const Icon(Icons.close), onPressed: () => context.pop()),
-        actions: isEdit ? [
-          IconButton(
-            icon:  const Icon(Icons.delete_outline, color: AppTheme.expense),
-            onPressed: () {},
-          ),
-        ] : null,
+        title: Text(controller.isEdit ? 'Edit Transaksi' : 'Tambah Transaksi'),
+        leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Get.back()),
       ),
       body: Form(
         key: _formKey,
@@ -116,28 +36,32 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
                 borderRadius: BorderRadius.circular(14),
                 border:       Border.all(color: AppTheme.divider, width: 0.5),
               ),
-              child: Row(children: [
+              child: Obx(() => Row(children: [
                 _TypeButton(label: 'Pengeluaran', icon: '↑',
-                  active: _type == 'expense', color: AppTheme.expense,
-                  onTap:  () => setState(() => _type = 'expense')),
+                  active: controller.type.value == 'expense', color: AppTheme.expense,
+                  onTap:  () => controller.setType('expense')),
                 _TypeButton(label: 'Pemasukan',   icon: '↓',
-                  active: _type == 'income',  color: AppTheme.income,
-                  onTap:  () => setState(() => _type = 'income')),
-              ]),
+                  active: controller.type.value == 'income',  color: AppTheme.income,
+                  onTap:  () => controller.setType('income')),
+              ])),
             ),
             const SizedBox(height: 20),
 
-            if (_error != null) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color:  const Color(0xFFFEF2F2),
-                  borderRadius: BorderRadius.circular(10),
+            Obx(() {
+              final error = controller.error.value;
+              if (error == null) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color:  const Color(0xFFFEF2F2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(error, style: const TextStyle(color: AppTheme.expense, fontSize: 13)),
                 ),
-                child: Text(_error!, style: const TextStyle(color: AppTheme.expense, fontSize: 13)),
-              ),
-              const SizedBox(height: 16),
-            ],
+              );
+            }),
 
             // Amount (big input)
             Container(
@@ -148,18 +72,18 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
                 border:       Border.all(color: AppTheme.divider, width: 0.5),
               ),
               child: Column(children: [
-                Text('Nominal',
-                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                const Text('Nominal',
+                  style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
                 const SizedBox(height: 8),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   const Text('Rp ', style: TextStyle(fontSize: 22,
                     fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
-                  Expanded(child: TextFormField(
-                    controller:   _amountCtrl,
+                  Expanded(child: Obx(() => TextFormField(
+                    controller:   controller.amountCtrl,
                     keyboardType: TextInputType.number,
                     textAlign:    TextAlign.center,
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700,
-                      color: _type == 'income' ? AppTheme.income : AppTheme.expense),
+                      color: controller.type.value == 'income' ? AppTheme.income : AppTheme.expense),
                     decoration: const InputDecoration(
                       border:         InputBorder.none,
                       enabledBorder:  InputBorder.none,
@@ -174,7 +98,7 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
                       if (n == null || n < 1) return 'Nominal tidak valid';
                       return null;
                     },
-                  )),
+                  ))),
                 ]),
               ]),
             ),
@@ -182,7 +106,7 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
 
             // Title
             TextFormField(
-              controller:  _titleCtrl,
+              controller:  controller.titleCtrl,
               decoration: const InputDecoration(
                 labelText:  'Judul transaksi',
                 prefixIcon:  Icon(Icons.title),
@@ -193,7 +117,21 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
 
             // Date
             GestureDetector(
-              onTap: _pickDate,
+              onTap: () async {
+                final picked = await showDatePicker(
+                  context:    context,
+                  initialDate: controller.date.value,
+                  firstDate:   DateTime(2020),
+                  lastDate:    DateTime.now(),
+                  builder: (context, child) => Theme(
+                    data: ThemeData.light().copyWith(
+                      colorScheme: const ColorScheme.light(primary: AppTheme.primary),
+                    ),
+                    child: child!,
+                  ),
+                );
+                if (picked != null) controller.setDate(picked);
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
@@ -205,8 +143,8 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
                   const Icon(Icons.calendar_today_outlined,
                     color: AppTheme.textSecondary, size: 20),
                   const SizedBox(width: 12),
-                  Text(DateFormatter.formatDate(_date),
-                    style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15)),
+                  Obx(() => Text(DateFormatter.formatDate(controller.date.value),
+                    style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15))),
                 ]),
               ),
             ),
@@ -214,7 +152,7 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
 
             // Note
             TextFormField(
-              controller:  _noteCtrl,
+              controller:  controller.noteCtrl,
               maxLines:    3,
               decoration: const InputDecoration(
                 labelText:  'Catatan (opsional)',
@@ -224,16 +162,20 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
             ),
             const SizedBox(height: 32),
 
-            ElevatedButton(
-              onPressed: _loading ? null : _submit,
+            Obx(() => ElevatedButton(
+              onPressed: controller.loading.value ? null : () {
+                if (_formKey.currentState!.validate()) {
+                  controller.submit();
+                }
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: _type == 'income' ? AppTheme.income : AppTheme.expense,
+                backgroundColor: controller.type.value == 'income' ? AppTheme.income : AppTheme.expense,
               ),
-              child: _loading
+              child: controller.loading.value
                   ? const SizedBox(width: 22, height: 22,
                       child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : Text(isEdit ? 'Simpan Perubahan' : 'Simpan Transaksi'),
-            ),
+                  : Text(controller.isEdit ? 'Simpan Perubahan' : 'Simpan Transaksi'),
+            )),
           ],
         ),
       ),

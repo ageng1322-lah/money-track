@@ -1,25 +1,24 @@
 // lib/features/auth/presentation/register_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../shared/providers/providers.dart';
+import 'auth_controller.dart';
 
-class RegisterScreen extends ConsumerStatefulWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends ConsumerState<RegisterScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey   = GlobalKey<FormState>();
   final _nameCtrl  = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passCtrl  = TextEditingController();
   final _confCtrl  = TextEditingController();
+  final _authController = Get.find<AuthController>();
   bool  _obscure   = true;
-  String? _error;
 
   @override
   void dispose() {
@@ -30,25 +29,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _error = null);
-
-    await ref.read(authProvider.notifier).register(
+    
+    await _authController.register(
       _nameCtrl.text.trim(),
       _emailCtrl.text.trim(),
       _passCtrl.text,
     );
 
-    if (mounted) {
-      ref.read(authProvider).whenOrNull(
-        error: (e, _) => setState(() => _error = e.toString()),
-      );
+    if (_authController.isLoggedIn) {
+      Get.offAllNamed('/dashboard');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final loading = ref.watch(authProvider).isLoading;
-
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
@@ -62,7 +56,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const SizedBox(height: 32),
                 IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new),
-                  onPressed: () => context.go('/login'),
+                  onPressed: () => Get.back(),
                 ),
                 const SizedBox(height: 16),
                 const Text('Buat akun baru',
@@ -74,19 +68,23 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   style: TextStyle(fontSize: 15, color: AppTheme.textSecondary)),
                 const SizedBox(height: 32),
 
-                if (_error != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color:  const Color(0xFFFEF2F2),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppTheme.expense.withOpacity(.3)),
+                Obx(() {
+                  final error = _authController.error.value;
+                  if (error == null) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color:  const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppTheme.expense.withOpacity(.3)),
+                      ),
+                      child: Text(error,
+                        style: const TextStyle(color: AppTheme.expense, fontSize: 13)),
                     ),
-                    child: Text(_error!,
-                      style: const TextStyle(color: AppTheme.expense, fontSize: 13)),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                  );
+                }),
 
                 TextFormField(
                   controller:  _nameCtrl,
@@ -136,17 +134,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                ElevatedButton(
-                  onPressed: loading ? null : _submit,
-                  child: loading
-                      ? const SizedBox(width: 22, height: 22,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Daftar'),
-                ),
+                Obx(() {
+                  final loading = _authController.isLoading.value;
+                  return ElevatedButton(
+                    onPressed: loading ? null : _submit,
+                    child: loading
+                        ? const SizedBox(width: 22, height: 22,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : const Text('Daftar'),
+                  );
+                }),
                 const SizedBox(height: 20),
                 Center(
                   child: GestureDetector(
-                    onTap: () => context.go('/login'),
+                    onTap: () => Get.back(),
                     child: RichText(text: const TextSpan(
                       text: 'Sudah punya akun? ',
                       style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),

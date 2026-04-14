@@ -1,8 +1,9 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/router/app_router.dart';
+import 'package:get/get.dart';
+import 'core/bindings/initial_binding.dart';
+import 'core/router/app_pages.dart';
 import 'core/theme/app_theme.dart';
 
 void main() async {
@@ -18,23 +19,24 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const ProviderScope(child: FinTrackApp()));
+  runApp(const FinTrackApp());
 }
 
-class FinTrackApp extends ConsumerWidget {
+class FinTrackApp extends StatelessWidget {
   const FinTrackApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(routerProvider);
-
-    return MaterialApp.router(
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
       title:              'FinTrack',
       debugShowCheckedModeBanner: false,
       theme:              AppTheme.light,
       darkTheme:          AppTheme.dark,
       themeMode:          ThemeMode.system,
-      routerConfig:       router,
+      initialRoute:       AppPages.INITIAL,
+      getPages:           AppPages.routes,
+      initialBinding:     InitialBinding(),
+      defaultTransition:  Transition.cupertino,
     );
   }
 }

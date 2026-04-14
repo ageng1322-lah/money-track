@@ -1,23 +1,22 @@
 // lib/features/auth/presentation/login_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../shared/providers/providers.dart';
+import 'auth_controller.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey    = GlobalKey<FormState>();
   final _emailCtrl  = TextEditingController();
   final _passCtrl   = TextEditingController();
+  final _authController = Get.find<AuthController>();
   bool  _obscure    = true;
-  String? _error;
 
   @override
   void dispose() {
@@ -28,25 +27,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _error = null);
-
-    await ref.read(authProvider.notifier).login(
+    
+    await _authController.login(
       _emailCtrl.text.trim(),
       _passCtrl.text,
     );
 
-    if (mounted) {
-      final state = ref.read(authProvider);
-      state.whenOrNull(
-        error: (e, _) => setState(() => _error = e.toString()),
-      );
+    if (_authController.isLoggedIn) {
+      Get.offAllNamed('/dashboard');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final loading = ref.watch(authProvider).isLoading;
-
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
@@ -82,23 +75,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 40),
 
                 // Error banner
-                if (_error != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color:        const Color(0xFFFEF2F2),
-                      borderRadius: BorderRadius.circular(10),
-                      border:       Border.all(color: AppTheme.expense.withOpacity(.3)),
+                Obx(() {
+                  final error = _authController.error.value;
+                  if (error == null) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color:        const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(10),
+                        border:       Border.all(color: AppTheme.expense.withOpacity(.3)),
+                      ),
+                      child: Row(children: [
+                        const Icon(Icons.error_outline, color: AppTheme.expense, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(error,
+                          style: const TextStyle(color: AppTheme.expense, fontSize: 13))),
+                      ]),
                     ),
-                    child: Row(children: [
-                      const Icon(Icons.error_outline, color: AppTheme.expense, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(_error!,
-                        style: const TextStyle(color: AppTheme.expense, fontSize: 13))),
-                    ]),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                  );
+                }),
 
                 // Email
                 TextFormField(
@@ -132,19 +129,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 32),
 
                 // Submit
-                ElevatedButton(
-                  onPressed: loading ? null : _submit,
-                  child: loading
-                      ? const SizedBox(width: 22, height: 22,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Masuk'),
-                ),
+                Obx(() {
+                  final loading = _authController.isLoading.value;
+                  return ElevatedButton(
+                    onPressed: loading ? null : _submit,
+                    child: loading
+                        ? const SizedBox(width: 22, height: 22,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : const Text('Masuk'),
+                  );
+                }),
                 const SizedBox(height: 20),
 
                 // Register link
                 Center(
                   child: GestureDetector(
-                    onTap: () => context.go('/register'),
+                    onTap: () => Get.toNamed('/register'),
                     child: RichText(text: const TextSpan(
                       text: 'Belum punya akun? ',
                       style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),

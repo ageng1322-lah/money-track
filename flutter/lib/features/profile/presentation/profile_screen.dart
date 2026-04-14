@@ -1,109 +1,112 @@
 // lib/features/profile/presentation/profile_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../shared/providers/providers.dart';
+import '../../auth/presentation/auth_controller.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authProvider).valueOrNull;
-    if (user == null) return const SizedBox();
+  Widget build(BuildContext context) {
+    final authController = Get.find<AuthController>();
 
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            const SizedBox(height: 8),
-            const Text('Profil', style: TextStyle(fontSize: 22,
-              fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-            const SizedBox(height: 24),
+        child: Obx(() {
+          final user = authController.user.value;
+          if (user == null) return const Center(child: CircularProgressIndicator());
 
-            // Avatar + info
-            Center(child: Column(children: [
-              Stack(children: [
-                CircleAvatar(
-                  radius:          44,
-                  backgroundColor: AppTheme.primaryLight,
-                  backgroundImage: user.photoUrl != null
-                      ? NetworkImage(user.photoUrl!) : null,
-                  child: user.photoUrl == null
-                      ? Text(user.name[0].toUpperCase(),
-                          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700,
-                            color: AppTheme.primary))
-                      : null,
-                ),
-                Positioned(bottom: 0, right: 0, child: Container(
-                  width: 28, height: 28,
-                  decoration: BoxDecoration(
-                    color:        AppTheme.primary,
-                    shape:        BoxShape.circle,
-                    border:       Border.all(color: Colors.white, width: 2),
+          return ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              const SizedBox(height: 8),
+              const Text('Profil', style: TextStyle(fontSize: 22,
+                fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+              const SizedBox(height: 24),
+
+              // Avatar + info
+              Center(child: Column(children: [
+                Stack(children: [
+                  CircleAvatar(
+                    radius:          44,
+                    backgroundColor: AppTheme.primaryLight,
+                    backgroundImage: user.photoUrl != null
+                        ? NetworkImage(user.photoUrl!) : null,
+                    child: user.photoUrl == null
+                        ? Text(user.name[0].toUpperCase(),
+                            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700,
+                              color: AppTheme.primary))
+                        : null,
                   ),
-                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 14),
-                )),
+                  Positioned(bottom: 0, right: 0, child: Container(
+                    width: 28, height: 28,
+                    decoration: BoxDecoration(
+                      color:        AppTheme.primary,
+                      shape:        BoxShape.circle,
+                      border:       Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 14),
+                  )),
+                ]),
+                const SizedBox(height: 12),
+                Text(user.name,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary)),
+                const SizedBox(height: 4),
+                Text(user.email,
+                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+              ])),
+              const SizedBox(height: 32),
+
+              // Menu
+              _MenuSection(items: [
+                _MenuItem(icon: Icons.person_outline,  label: 'Edit profil',
+                  onTap: () {}),
+                _MenuItem(icon: Icons.lock_outline,    label: 'Ubah password',
+                  onTap: () {}),
               ]),
               const SizedBox(height: 12),
-              Text(user.name,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary)),
-              const SizedBox(height: 4),
-              Text(user.email,
-                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
-            ])),
-            const SizedBox(height: 32),
-
-            // Menu
-            _MenuSection(items: [
-              _MenuItem(icon: Icons.person_outline,  label: 'Edit profil',
-                onTap: () {}),
-              _MenuItem(icon: Icons.lock_outline,    label: 'Ubah password',
-                onTap: () {}),
-            ]),
-            const SizedBox(height: 12),
-            _MenuSection(items: [
-              _MenuItem(icon: Icons.category_outlined, label: 'Kategori kustom',
-                onTap: () {}),
-              _MenuItem(icon: Icons.notifications_outlined, label: 'Notifikasi',
-                onTap: () {}),
-              _MenuItem(icon: Icons.dark_mode_outlined, label: 'Mode gelap',
-                onTap: () {}),
-            ]),
-            const SizedBox(height: 12),
-            _MenuSection(items: [
-              _MenuItem(icon: Icons.logout, label: 'Keluar',
-                color: AppTheme.expense,
-                onTap: () => _confirmLogout(context, ref)),
-            ]),
-          ],
-        ),
+              _MenuSection(items: [
+                _MenuItem(icon: Icons.category_outlined, label: 'Kategori kustom',
+                  onTap: () {}),
+                _MenuItem(icon: Icons.notifications_outlined, label: 'Notifikasi',
+                  onTap: () {}),
+                _MenuItem(icon: Icons.dark_mode_outlined, label: 'Mode gelap',
+                  onTap: () {}),
+              ]),
+              const SizedBox(height: 12),
+              _MenuSection(items: [
+                _MenuItem(icon: Icons.logout, label: 'Keluar',
+                  color: AppTheme.expense,
+                  onTap: () => _confirmLogout(context, authController)),
+              ]),
+            ],
+          );
+        }),
       ),
     );
   }
 
-  void _confirmLogout(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
+  void _confirmLogout(BuildContext context, AuthController controller) {
+    Get.dialog(
+      AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Keluar dari akun?'),
         content: const Text('Anda akan keluar dari FinTrack.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Batal')),
           ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await ref.read(authProvider.notifier).logout();
+            onPressed: () {
+              Get.back();
+              controller.logout();
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.expense),
             child: const Text('Keluar'),
           ),
         ],
-      ),
+      )
     );
   }
 }
