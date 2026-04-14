@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/providers/providers.dart';
@@ -28,6 +29,35 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
   String?  _error;
 
   bool get isEdit => widget.transactionId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (isEdit) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadTransaction());
+    }
+  }
+
+  Future<void> _loadTransaction() async {
+    setState(() => _loading = true);
+    try {
+      final repo = ref.read(transactionRepositoryProvider);
+      final tx = await repo.getTransactionById(widget.transactionId!);
+      
+      setState(() {
+        _titleCtrl.text = tx.title;
+        _amountCtrl.text = tx.amount.toInt().toString();
+        _noteCtrl.text = tx.note ?? '';
+        _type = tx.type;
+        _date = tx.date;
+        _categoryId = tx.category?.id;
+      });
+    } catch (e) {
+      setState(() => _error = "Gagal memuat data: ${e.toString()}");
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -66,6 +96,9 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
       }
 
       ref.read(dashboardProvider.notifier).refresh();
+      // Also invalidate transaction list
+      // ref.invalidate(transactionListProvider); // if exists
+      
       if (mounted) context.pop();
     } catch (e) {
       setState(() => _error = e.toString());
@@ -81,8 +114,8 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
       firstDate:   DateTime(2020),
       lastDate:    DateTime.now(),
       builder: (context, child) => Theme(
-        data: ThemeData.light().copyWith(
-          colorScheme: const ColorScheme.light(primary: AppTheme.primary),
+        data: AppTheme.dark.copyWith(
+          colorScheme: const ColorScheme.dark(primary: AppTheme.primary, surface: AppTheme.surface),
         ),
         child: child!,
       ),
@@ -93,146 +126,127 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title:    Text(isEdit ? 'Edit Transaksi' : 'Tambah Transaksi'),
-        leading:  IconButton(icon: const Icon(Icons.close), onPressed: () => context.pop()),
-        actions: isEdit ? [
-          IconButton(
-            icon:  const Icon(Icons.delete_outline, color: AppTheme.expense),
-            onPressed: () {},
-          ),
-        ] : null,
+        title: Text(isEdit ? 'Edit Recording' : 'New Recording'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+          onPressed: () => context.pop(),
+        ),
       ),
-      body: Form(
+      body: _loading && isEdit 
+        ? const Center(child: CircularProgressIndicator(color: AppTheme.primary))
+        : Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           children: [
             // Type toggle
             Container(
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color:        AppTheme.surface,
-                borderRadius: BorderRadius.circular(14),
-                border:       Border.all(color: AppTheme.divider, width: 0.5),
+                borderRadius: BorderRadius.circular(20),
+                border:       Border.all(color: Colors.white.withOpacity(0.05)),
               ),
               child: Row(children: [
-                _TypeButton(label: 'Pengeluaran', icon: '↑',
+                _TypeButton(label: 'Expense',
                   active: _type == 'expense', color: AppTheme.expense,
                   onTap:  () => setState(() => _type = 'expense')),
-                _TypeButton(label: 'Pemasukan',   icon: '↓',
+                _TypeButton(label: 'Income',
                   active: _type == 'income',  color: AppTheme.income,
                   onTap:  () => setState(() => _type = 'income')),
               ]),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 32),
 
             if (_error != null) ...[
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color:  const Color(0xFFFEF2F2),
-                  borderRadius: BorderRadius.circular(10),
+                  color:  AppTheme.expense.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppTheme.expense.withOpacity(0.2)),
                 ),
-                child: Text(_error!, style: const TextStyle(color: AppTheme.expense, fontSize: 13)),
+                child: Text(_error!, style: const TextStyle(color: AppTheme.expense, fontSize: 13, fontWeight: FontWeight.bold)),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
             ],
 
-            // Amount (big input)
-            Container(
-              padding:      const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color:        AppTheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                border:       Border.all(color: AppTheme.divider, width: 0.5),
-              ),
-              child: Column(children: [
-                Text('Nominal',
-                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
-                const SizedBox(height: 8),
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  const Text('Rp ', style: TextStyle(fontSize: 22,
-                    fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
-                  Expanded(child: TextFormField(
-                    controller:   _amountCtrl,
-                    keyboardType: TextInputType.number,
-                    textAlign:    TextAlign.center,
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700,
-                      color: _type == 'income' ? AppTheme.income : AppTheme.expense),
-                    decoration: const InputDecoration(
-                      border:         InputBorder.none,
-                      enabledBorder:  InputBorder.none,
-                      focusedBorder:  InputBorder.none,
-                      filled:         false,
-                      hintText:       '0',
-                    ),
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Nominal wajib diisi';
-                      final n = double.tryParse(v.replaceAll('.', ''));
-                      if (n == null || n < 1) return 'Nominal tidak valid';
-                      return null;
-                    },
-                  )),
-                ]),
-              ]),
-            ),
-            const SizedBox(height: 16),
-
-            // Title
+            // Amount input
+            Text('Amount', style: TextStyle(color: AppTheme.textDim, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+            const SizedBox(height: 12),
             TextFormField(
-              controller:  _titleCtrl,
-              decoration: const InputDecoration(
-                labelText:  'Judul transaksi',
-                prefixIcon:  Icon(Icons.title),
+              controller: _amountCtrl,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, fontFamily: 'Outfit'),
+              decoration: InputDecoration(
+                prefixText: 'Rp ',
+                prefixStyle: TextStyle(color: AppTheme.textDim, fontSize: 24, fontWeight: FontWeight.bold),
+                hintText: '0',
+                fillColor: Colors.transparent,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
               ),
-              validator: (v) => (v == null || v.isEmpty) ? 'Judul wajib diisi' : null,
-            ),
-            const SizedBox(height: 14),
-
-            // Date
-            GestureDetector(
-              onTap: _pickDate,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color:        const Color(0xFFF9FAFB),
-                  borderRadius: BorderRadius.circular(12),
-                  border:       Border.all(color: AppTheme.divider),
-                ),
-                child: Row(children: [
-                  const Icon(Icons.calendar_today_outlined,
-                    color: AppTheme.textSecondary, size: 20),
-                  const SizedBox(width: 12),
-                  Text(DateFormatter.formatDate(_date),
-                    style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15)),
-                ]),
-              ),
-            ),
-            const SizedBox(height: 14),
-
-            // Note
-            TextFormField(
-              controller:  _noteCtrl,
-              maxLines:    3,
-              decoration: const InputDecoration(
-                labelText:  'Catatan (opsional)',
-                prefixIcon:  Icon(Icons.notes),
-                alignLabelWithHint: true,
-              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
             ),
             const SizedBox(height: 32),
 
+            // Form Fields
+            TextFormField(
+              controller: _titleCtrl,
+              decoration: const InputDecoration(
+                labelText: 'DESCRIPTION',
+                hintText: 'What did you buy/earn?',
+              ),
+              validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+            ),
+            const SizedBox(height: 20),
+
+            Row(children: [
+              Expanded(
+                child: InkWell(
+                  onTap: _pickDate,
+                  borderRadius: BorderRadius.circular(20),
+                  child: InputDecorator(
+                    decoration: const InputDecoration(labelText: 'DATE'),
+                    child: Text(
+                      DateFormat('dd MMM yyyy').format(_date),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: DropdownButtonFormField<int>(
+                  value: _categoryId,
+                  decoration: const InputDecoration(labelText: 'CATEGORY'),
+                  items: const [
+                    DropdownMenuItem(value: null, child: Text('General')),
+                    // In a real app, you'd fetch categories here
+                  ],
+                  onChanged: (v) => setState(() => _categoryId = v),
+                ),
+              ),
+            ]),
+            const SizedBox(height: 20),
+
+            TextFormField(
+              controller: _noteCtrl,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'NOTES (OPTIONAL)',
+                hintText: 'Add some details...',
+              ),
+            ),
+            const SizedBox(height: 40),
+
             ElevatedButton(
               onPressed: _loading ? null : _submit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _type == 'income' ? AppTheme.income : AppTheme.expense,
-              ),
-              child: _loading
-                  ? const SizedBox(width: 22, height: 22,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : Text(isEdit ? 'Simpan Perubahan' : 'Simpan Transaksi'),
+              child: _loading 
+                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 3, color: Colors.black))
+                : Text(isEdit ? 'UPDATE RECORD' : 'SAVE TRANSACTION'),
             ),
           ],
         ),
@@ -242,32 +256,29 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
 }
 
 class _TypeButton extends StatelessWidget {
-  final String label; final String icon;
-  final bool active;  final Color color;
+  final String label;
+  final bool active; final Color color;
   final VoidCallback onTap;
-  const _TypeButton({required this.label, required this.icon,
-    required this.active, required this.color, required this.onTap});
+  const _TypeButton({required this.label, required this.active, required this.color, required this.onTap});
 
   @override
   Widget build(BuildContext context) => Expanded(
     child: GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding:  const EdgeInsets.symmetric(vertical: 14),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color:        active ? color : Colors.transparent,
-          borderRadius: BorderRadius.circular(13),
+          color: active ? color : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: active ? [BoxShadow(color: color.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4))] : null,
         ),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text(icon, style: TextStyle(
-            fontSize: 16, color: active ? Colors.white : AppTheme.textSecondary,
-            fontWeight: FontWeight.w700)),
-          const SizedBox(width: 6),
-          Text(label, style: TextStyle(
-            fontSize: 14, fontWeight: FontWeight.w600,
-            color: active ? Colors.white : AppTheme.textSecondary)),
-        ]),
+        child: Center(
+          child: Text(label.toUpperCase(), style: TextStyle(
+            fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5,
+            color: active ? Colors.black : AppTheme.textDim)),
+        ),
       ),
     ),
   );

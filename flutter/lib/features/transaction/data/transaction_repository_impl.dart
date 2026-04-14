@@ -68,6 +68,11 @@ class TransactionRepository {
     await _dio.delete('/transactions/$id');
   }
 
+  Future<TransactionEntity> getTransactionById(int id) async {
+    final res = await _dio.get('/transactions/$id');
+    return _mapTransaction(res.data['data']);
+  }
+
   TransactionEntity _mapTransaction(Map<String, dynamic> json) {
     final cat = json['category'];
     return TransactionEntity(

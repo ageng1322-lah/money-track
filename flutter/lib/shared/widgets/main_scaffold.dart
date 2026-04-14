@@ -21,31 +21,25 @@ class MainScaffold extends StatelessWidget {
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
+        padding: const EdgeInsets.only(top: 12, bottom: 0),
         decoration: BoxDecoration(
-          color:  AppTheme.surface,
-          border: Border(top: BorderSide(color: AppTheme.divider, width: 0.5)),
-          boxShadow: [BoxShadow(
-            color:  Colors.black.withOpacity(.04),
-            blurRadius: 20, offset: const Offset(0, -4),
-          )],
+          color:  AppTheme.background,
+          border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05), width: 1)),
         ),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavItem(icon: Icons.home_outlined,      activeIcon: Icons.home,
-                  label: 'Home',    index: 0, current: currentIndex,
-                  onTap: () => context.go('/dashboard')),
-                _NavItem(icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long,
-                  label: 'Catatan', index: 1, current: currentIndex,
-                  onTap: () => context.go('/transactions')),
-                _NavItem(icon: Icons.person_outline,     activeIcon: Icons.person,
-                  label: 'Profil',  index: 2, current: currentIndex,
-                  onTap: () => context.go('/profile')),
-              ],
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _NavItem(icon: Icons.grid_view_rounded, activeIcon: Icons.grid_view_rounded,
+                label: 'HOME',    index: 0, current: currentIndex,
+                onTap: () => context.go('/dashboard')),
+              _NavItem(icon: Icons.receipt_long_rounded, activeIcon: Icons.receipt_long_rounded,
+                label: 'RECORDS', index: 1, current: currentIndex,
+                onTap: () => context.go('/transactions')),
+              _NavItem(icon: Icons.person_rounded,     activeIcon: Icons.person_rounded,
+                label: 'PROFILE',  index: 2, current: currentIndex,
+                onTap: () => context.go('/profile')),
+            ],
           ),
         ),
       ),
@@ -65,23 +59,30 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(
     onTap: onTap,
-    child: AnimatedContainer(
+    behavior: HitTestBehavior.opaque,
+    child: AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-      decoration: BoxDecoration(
-        color:        isActive ? AppTheme.primaryLight : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
+      opacity:  isActive ? 1.0 : 0.4,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(isActive ? activeIcon : icon, color: isActive ? AppTheme.primary : Colors.white, size: 24),
+          const SizedBox(height: 6),
+          Text(label, style: TextStyle(
+            fontSize:   9,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
+            color:      isActive ? AppTheme.primary : Colors.white,
+          )),
+          const SizedBox(height: 12),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: isActive ? 4 : 0,
+            height: 4,
+            decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
+          ),
+        ],
       ),
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(isActive ? activeIcon : icon,
-          color: isActive ? AppTheme.primary : AppTheme.textSecondary, size: 22),
-        const SizedBox(height: 3),
-        Text(label, style: TextStyle(
-          fontSize:   10,
-          fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-          color:      isActive ? AppTheme.primary : AppTheme.textSecondary,
-        )),
-      ]),
     ),
   );
 }

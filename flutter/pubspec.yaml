@@ -38,6 +38,7 @@ dependencies:
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
   dartz: ^0.10.1
+  google_fonts: ^6.3.2
 
 dev_dependencies:
   flutter_test:

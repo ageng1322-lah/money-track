@@ -46,6 +46,8 @@ class Dashboard extends Component
         $this->recent       = $this->dashboardService
             ->getRecentTransactions($userId, 5)
             ->toArray();
+
+        $this->dispatch('chartUpdated', $this->chartData);
     }
 
     public function render()

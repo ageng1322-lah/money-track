@@ -1,196 +1,179 @@
 {{-- resources/views/livewire/dashboard.blade.php --}}
-<div class="space-y-6">
+<div class="space-y-10 animate-in fade-in duration-700">
+    <x-slot name="title">Dashboard</x-slot>
 
-    {{-- Header --}}
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">
-                Halo, {{ Auth::user()->name }} 👋
-            </h1>
-            <p class="text-sm text-gray-500 mt-1">
-                {{ \Carbon\Carbon::create()->month($month)->locale('id')->monthName }} {{ $year }}
-            </p>
+    {{-- Top Stats --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {{-- Total Balance --}}
+        <div class="bg-[#111111] rounded-[2rem] p-8 border border-white/5 shadow-2xl relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-6 opacity-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+            </div>
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                </div>
+                <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Total Saldo</span>
+            </div>
+            <h3 class="text-4xl font-outfit font-extrabold tracking-tight text-white">Rp{{ number_format($balance, 0, ',', '.') }}</h3>
         </div>
-        <div class="flex items-center gap-3">
-            <select wire:model.live="month"
-                class="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-green-500">
-                @foreach(range(1,12) as $m)
-                    <option value="{{ $m }}">
-                        {{ \Carbon\Carbon::create()->month($m)->locale('id')->monthName }}
-                    </option>
-                @endforeach
-            </select>
-            <select wire:model.live="year"
-                class="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-green-500">
-                @foreach(range(2023, now()->year) as $y)
-                    <option value="{{ $y }}">{{ $y }}</option>
-                @endforeach
-            </select>
+
+        {{-- Monthly Income --}}
+        <div class="bg-[#111111] rounded-[2rem] p-8 border border-white/5 shadow-2xl group">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                </div>
+                <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Pemasukan</span>
+            </div>
+            <h3 class="text-4xl font-outfit font-extrabold tracking-tight text-emerald-500">Rp{{ number_format($totalIncome, 0, ',', '.') }}</h3>
+        </div>
+
+        {{-- Monthly Expense --}}
+        <div class="bg-[#111111] rounded-[2rem] p-8 border border-white/5 shadow-2xl group">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                </div>
+                <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Pengeluaran</span>
+            </div>
+            <h3 class="text-4xl font-outfit font-extrabold tracking-tight text-rose-500">Rp{{ number_format($totalExpense, 0, ',', '.') }}</h3>
         </div>
     </div>
 
-    {{-- Summary Cards --}}
-    <div class="grid grid-cols-3 gap-4">
-        {{-- Balance --}}
-        <div class="bg-gradient-to-br from-green-500 to-green-700 rounded-2xl p-6 text-white shadow-lg shadow-green-200">
-            <p class="text-sm text-green-100 font-medium mb-2">Saldo Bulan Ini</p>
-            <p class="text-3xl font-extrabold tracking-tight">
-                Rp {{ number_format($balance, 0, ',', '.') }}
-            </p>
-            <div class="flex gap-4 mt-4">
-                <div>
-                    <p class="text-xs text-green-200">Pemasukan</p>
-                    <p class="text-sm font-semibold">Rp {{ number_format($totalIncome, 0, ',', '.') }}</p>
+    {{-- Main Content Grid --}}
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {{-- Chart Section --}}
+        <div class="lg:col-span-7 bg-[#111111] rounded-[2.5rem] p-8 border border-white/5 shadow-2xl">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-6 h-6 text-emerald-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
                 </div>
-                <div>
-                    <p class="text-xs text-green-200">Pengeluaran</p>
-                    <p class="text-sm font-semibold">Rp {{ number_format($totalExpense, 0, ',', '.') }}</p>
+                <h4 class="text-lg font-bold text-white">Perbandingan Keuangan</h4>
+            </div>
+            <div class="h-80 w-full">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+
+        {{-- Recent Activity --}}
+        <div class="lg:col-span-5 bg-[#111111] rounded-[2.5rem] p-8 border border-white/5 shadow-2xl">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-6 h-6 text-emerald-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                 </div>
+                <h4 class="text-lg font-bold text-white">Riwayat Terakhir</h4>
             </div>
-        </div>
-
-        {{-- Income --}}
-        <div class="bg-white border border-gray-100 rounded-2xl p-6">
-            <div class="flex items-center gap-2 mb-3">
-                <span class="w-3 h-3 rounded-full bg-green-500"></span>
-                <p class="text-sm text-gray-500 font-medium">Total Pemasukan</p>
-            </div>
-            <p class="text-2xl font-bold text-green-600">
-                Rp {{ number_format($totalIncome, 0, ',', '.') }}
-            </p>
-        </div>
-
-        {{-- Expense --}}
-        <div class="bg-white border border-gray-100 rounded-2xl p-6">
-            <div class="flex items-center gap-2 mb-3">
-                <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                <p class="text-sm text-gray-500 font-medium">Total Pengeluaran</p>
-            </div>
-            <p class="text-2xl font-bold text-red-500">
-                Rp {{ number_format($totalExpense, 0, ',', '.') }}
-            </p>
-        </div>
-    </div>
-
-    {{-- Chart + Recent --}}
-    <div class="grid grid-cols-5 gap-4">
-
-        {{-- Bar Chart --}}
-        <div class="col-span-3 bg-white border border-gray-100 rounded-2xl p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="font-semibold text-gray-800">Pemasukan vs Pengeluaran</h2>
-                <div class="flex items-center gap-4 text-xs text-gray-500">
-                    <span class="flex items-center gap-1.5">
-                        <span class="w-3 h-3 rounded-sm bg-green-500 inline-block"></span>Pemasukan
-                    </span>
-                    <span class="flex items-center gap-1.5">
-                        <span class="w-3 h-3 rounded-sm bg-red-400 inline-block"></span>Pengeluaran
-                    </span>
-                </div>
-            </div>
-            <div wire:ignore>
-                <canvas id="barChart" height="160"></canvas>
-            </div>
-        </div>
-
-        {{-- Recent --}}
-        <div class="col-span-2 bg-white border border-gray-100 rounded-2xl p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="font-semibold text-gray-800">Transaksi Terbaru</h2>
-                <a href="{{ route('transactions') }}"
-                    class="text-xs text-green-600 font-semibold hover:underline">
-                    Lihat semua →
-                </a>
-            </div>
-            <div class="space-y-3">
+            
+            <div class="space-y-4">
                 @forelse($recent as $tx)
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0
-                        {{ $tx['type'] === 'income' ? 'bg-green-50' : 'bg-red-50' }}">
-                        {{ $tx['category']['icon'] ?? '💰' }}
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] group hover:bg-white/[0.05] transition-all duration-300">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-black border border-white/5" 
+                             style="color: {{ $tx['category']['color'] ?? '#ffffff' }}">
+                            {{ $tx['category']['icon'] ?? '💰' }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h5 class="text-sm font-bold text-white truncate">{{ $tx['title'] }}</h5>
+                            <p class="text-[10px] text-white/20 font-black uppercase tracking-widest mt-0.5">{{ $tx['category']['name'] ?? 'Umum' }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-black {{ $tx['type'] === 'income' ? 'text-emerald-500' : 'text-rose-500' }}">
+                                {{ $tx['type'] === 'income' ? '+' : '-' }}Rp{{ number_format($tx['amount'], 0, ',', '.') }}
+                            </p>
+                        </div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold text-gray-800 truncate">{{ $tx['title'] }}</p>
-                        <p class="text-xs text-gray-400">{{ $tx['category']['name'] ?? 'Umum' }}</p>
-                    </div>
-                    <span class="text-sm font-bold {{ $tx['type'] === 'income' ? 'text-green-600' : 'text-red-500' }}">
-                        {{ $tx['type'] === 'income' ? '+' : '-' }}Rp {{ number_format($tx['amount'], 0, ',', '.') }}
-                    </span>
-                </div>
                 @empty
-                <p class="text-sm text-gray-400 text-center py-6">Belum ada transaksi</p>
+                    <div class="text-center py-10 opacity-20">
+                        <p class="text-sm font-bold uppercase tracking-widest">Belum ada aktivitas</p>
+                    </div>
                 @endforelse
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            let chartData = @json($chartData);
+            
+            const renderChart = (data) => {
+                return new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map(i => i.label),
+                        datasets: [
+                            {
+                                label: 'Pemasukan',
+                                data: data.map(i => i.income),
+                                backgroundColor: '#10b981',
+                                borderRadius: 8,
+                                barThickness: 12,
+                            },
+                            {
+                                label: 'Pengeluaran',
+                                data: data.map(i => i.expense),
+                                backgroundColor: '#f43f5e',
+                                borderRadius: 8,
+                                barThickness: 12,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#111111',
+                                titleFont: { family: 'Outfit', size: 14 },
+                                bodyFont: { family: 'Inter', size: 12 },
+                                padding: 12,
+                                cornerRadius: 12,
+                                borderColor: 'rgba(255,255,255,0.1)',
+                                borderWidth: 1
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: 'rgba(255,255,255,0.2)', font: { family: 'Inter', weight: 'bold', size: 10 } }
+                            },
+                            y: {
+                                grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+                                border: { display: false },
+                                ticks: { 
+                                    color: 'rgba(255,255,255,0.2)', 
+                                    font: { family: 'Inter', weight: 'bold', size: 10 },
+                                    callback: v => v >= 1000000 ? (v/1000000)+'M' : (v >= 1000 ? (v/1000)+'K' : v)
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            let myChart = renderChart(chartData);
+            Livewire.on('chartUpdated', (data) => {
+                myChart.destroy();
+                myChart = renderChart(data[0]);
+            });
+        });
+    </script>
+    @endpush
 </div>
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script>
-    let barChart;
-
-    function initChart(data) {
-        const ctx = document.getElementById('barChart').getContext('2d');
-        if (barChart) barChart.destroy();
-
-        const recent = data.slice(-6);
-        barChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: recent.map(d => d.label),
-                datasets: [
-                    {
-                        label: 'Pemasukan',
-                        data: recent.map(d => d.income),
-                        backgroundColor: '#1D9E75',
-                        borderRadius: 6,
-                        barPercentage: 0.45,
-                    },
-                    {
-                        label: 'Pengeluaran',
-                        data: recent.map(d => d.expense),
-                        backgroundColor: '#E24B4A',
-                        borderRadius: 6,
-                        barPercentage: 0.45,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => ' Rp ' + ctx.raw.toLocaleString('id-ID'),
-                        },
-                    },
-                },
-                scales: {
-                    y: {
-                        grid: { color: '#F5F7FA' },
-                        ticks: {
-                            callback: v => 'Rp ' + (v >= 1e6 ? (v/1e6).toFixed(1)+'Jt' : v.toLocaleString('id-ID')),
-                            font: { size: 10 },
-                            color: '#9CA3AF',
-                        },
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { size: 11 }, color: '#6B7280' },
-                    },
-                },
-            },
-        });
-    }
-
-    document.addEventListener('livewire:initialized', () => {
-        initChart(@json($chartData));
-
-        Livewire.hook('morph.updated', ({ el }) => {
-            if (el.id === 'barChart') return;
-            initChart(@json($chartData));
-        });
-    });
-</script>
-@endpush
