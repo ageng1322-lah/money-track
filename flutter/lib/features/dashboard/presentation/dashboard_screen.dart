@@ -2,7 +2,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart' as getx;
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/providers/providers.dart';
@@ -89,7 +89,7 @@ class DashboardScreen extends ConsumerWidget {
                           children: [
                             const Text('RECENT ACTIVITY', style: TextStyle(color: AppTheme.textDim, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
                             GestureDetector(
-                              onTap: () => context.go('/transactions'),
+                              onTap: () => getx.Get.toNamed('/transactions'),
                               child: const Text('SEE ALL →', style: TextStyle(color: AppTheme.primary, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
                             ),
                           ],
@@ -107,7 +107,7 @@ class DashboardScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/transactions/add'),
+        onPressed: () => getx.Get.toNamed('/transactions/add'),
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.black,
         elevation: 10,

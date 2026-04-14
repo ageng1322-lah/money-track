@@ -6,6 +6,8 @@ import 'core/bindings/initial_binding.dart';
 import 'core/router/app_pages.dart';
 import 'core/theme/app_theme.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -19,7 +21,11 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const FinTrackApp());
+  runApp(
+    const ProviderScope(
+      child: FinTrackApp(),
+    ),
+  );
 }
 
 class FinTrackApp extends StatelessWidget {

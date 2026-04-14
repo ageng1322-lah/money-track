@@ -1,7 +1,7 @@
 // lib/features/transaction/presentation/transaction_list_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart' as getx;
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
@@ -72,7 +72,7 @@ class TransactionListScreen extends ConsumerWidget {
                   const Text('NO RECORDS YET', style: TextStyle(color: AppTheme.textDim, fontWeight: FontWeight.w900, letterSpacing: 2)),
                   const SizedBox(height: 32),
                   ElevatedButton(
-                    onPressed: () => context.push('/transactions/add'),
+                    onPressed: () => getx.Get.toNamed('/transactions/add'),
                     style: ElevatedButton.styleFrom(minimumSize: const Size(200, 50)),
                     child: const Text('CREATE ONE'),
                   )
@@ -102,7 +102,7 @@ class TransactionListScreen extends ConsumerWidget {
                     ),
                     ...txList.map((tx) => _TransactionTile(
                       tx: tx,
-                      onTap:    () => context.push('/transactions/edit/${tx.id}'),
+                      onTap:    () => getx.Get.toNamed('/transactions/edit/${tx.id}'),
                       onDelete: () => _confirmDelete(context, ref, tx.id),
                     )),
                   ],
@@ -113,7 +113,7 @@ class TransactionListScreen extends ConsumerWidget {
         )),
       ]),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/transactions/add'),
+        onPressed: () => getx.Get.toNamed('/transactions/add'),
         backgroundColor: AppTheme.primary,
         child: const Icon(Icons.add_rounded, color: Colors.black, size: 32),
       ),

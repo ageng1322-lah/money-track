@@ -1,7 +1,7 @@
 // lib/features/auth/presentation/register_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart' as getx;
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/providers.dart';
 
@@ -39,8 +39,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
 
     if (mounted) {
-      ref.read(authProvider).whenOrNull(
+      ref.read(authProvider).when(
+        data: (user) {
+          if (user != null) {
+            getx.Get.offAllNamed('/dashboard');
+          }
+        },
         error: (e, _) => setState(() => _error = e.toString()),
+        loading: () {},
       );
     }
   }
@@ -67,7 +73,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-                      onPressed: () => context.go('/login'),
+                      onPressed: () => getx.Get.back(),
                     ),
                     const SizedBox(height: 32),
                     const Text('CREATE ACCOUNT', style: TextStyle(color: AppTheme.textDim, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
@@ -138,7 +144,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                     Center(
                       child: GestureDetector(
-                        onTap: () => context.go('/login'),
+                        onTap: () => getx.Get.back(),
                         child: RichText(text: const TextSpan(
                           text: "Already joined? ",
                           style: TextStyle(color: AppTheme.textDim, fontSize: 14, fontWeight: FontWeight.w600),

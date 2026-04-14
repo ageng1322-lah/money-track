@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart' as getx;
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/formatters.dart';
@@ -99,7 +99,7 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
       // Also invalidate transaction list
       // ref.invalidate(transactionListProvider); // if exists
       
-      if (mounted) context.pop();
+      if (mounted) getx.Get.back();
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -130,7 +130,7 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
         title: Text(isEdit ? 'Edit Recording' : 'New Recording'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-          onPressed: () => context.pop(),
+          onPressed: () => getx.Get.back(),
         ),
       ),
       body: _loading && isEdit 

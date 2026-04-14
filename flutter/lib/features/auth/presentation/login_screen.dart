@@ -1,7 +1,7 @@
 // lib/features/auth/presentation/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart' as getx;
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/providers.dart';
 
@@ -37,8 +37,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (mounted) {
       final state = ref.read(authProvider);
-      state.whenOrNull(
+      state.when(
+        data: (user) {
+          if (user != null) {
+            getx.Get.offAllNamed('/dashboard');
+          }
+        },
         error: (e, _) => setState(() => _error = e.toString()),
+        loading: () {},
       );
     }
   }
@@ -133,7 +139,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                     Center(
                       child: GestureDetector(
-                        onTap: () => context.go('/register'),
+                        onTap: () => getx.Get.toNamed('/register'),
                         child: RichText(text: const TextSpan(
                           text: "New here? ",
                           style: TextStyle(color: AppTheme.textDim, fontSize: 14, fontWeight: FontWeight.w600),
