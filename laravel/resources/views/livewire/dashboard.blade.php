@@ -1,6 +1,6 @@
 {{-- resources/views/livewire/dashboard.blade.php --}}
 <div class="space-y-10 animate-in fade-in duration-700">
-    <x-slot name="title">Dashboard</x-slot>
+    <x-slot name="title">DASHBOARD</x-slot>
 
     {{-- Top Stats --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

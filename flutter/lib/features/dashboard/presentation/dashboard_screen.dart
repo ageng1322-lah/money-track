@@ -106,14 +106,10 @@ class DashboardScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () => getx.Get.toNamed('/transactions/add'),
         backgroundColor: AppTheme.primary,
-        foregroundColor: Colors.black,
-        elevation: 10,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        label: const Text('NEW RECORD', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1)),
-        icon: const Icon(Icons.add_rounded, size: 24),
+        child: const Icon(Icons.add_rounded, color: Colors.black, size: 32),
       ),
     );
   }
@@ -190,8 +186,20 @@ class _BarChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final recent6 = chartData.length > 5 ? chartData.sublist(chartData.length - 5) : chartData;
-    final maxVal  = recent6.fold<double>(0, (m, d) => [m, (d['income'] as num).toDouble(), (d['expense'] as num).toDouble()].reduce((a, b) => a > b ? a : b));
+    // Show 6 months ending in the current month
+    final currentMonth = DateTime.now().month;
+    int startIdx = currentMonth - 6;
+    if (startIdx < 0) startIdx = 0;
+    
+    // Ensure we don't overflow if list is somehow small
+    final validEnd = currentMonth <= chartData.length ? currentMonth : chartData.length;
+    final recentMonths = chartData.sublist(startIdx, validEnd);
+
+    final maxVal = recentMonths.fold<double>(
+      0, 
+      (m, d) => [m, (d['income'] as num).toDouble(), (d['expense'] as num).toDouble()].reduce((a, b) => a > b ? a : b)
+    );
+    final computedMaxY = maxVal == 0 ? 1000.0 : maxVal * 1.2;
 
     return Container(
       height: 240,
@@ -202,7 +210,7 @@ class _BarChartCard extends StatelessWidget {
         border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: BarChart(BarChartData(
-        maxY: maxVal * 1.5,
+        maxY: computedMaxY,
         gridData: FlGridData(show: false),
         borderData: FlBorderData(show: false),
         titlesData: FlTitlesData(
@@ -211,21 +219,36 @@ class _BarChartCard extends StatelessWidget {
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           bottomTitles: AxisTitles(sideTitles: SideTitles(
             showTitles: true,
+            reservedSize: 22,
             getTitlesWidget: (v, _) {
               final idx = v.toInt();
-              if (idx < 0 || idx >= recent6.length) return const SizedBox();
+              if (idx < 0 || idx >= recentMonths.length) return const SizedBox();
               return Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Text(recent6[idx]['label'] as String, style: TextStyle(fontSize: 9, color: AppTheme.textDim, fontWeight: FontWeight.bold)),
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(recentMonths[idx]['label'] as String, style: TextStyle(fontSize: 9, color: AppTheme.textDim, fontWeight: FontWeight.bold)),
               );
             },
           )),
         ),
-        barGroups: recent6.asMap().entries.map((e) {
-          return BarChartGroupData(x: e.key, barRods: [
-            BarChartRodData(toY: (e.value['income'] as num).toDouble(), color: AppTheme.income, width: 10, borderRadius: BorderRadius.circular(4)),
-            BarChartRodData(toY: (e.value['expense'] as num).toDouble(), color: AppTheme.expense, width: 10, borderRadius: BorderRadius.circular(4)),
-          ]);
+        barGroups: recentMonths.asMap().entries.map((e) {
+          return BarChartGroupData(
+            x: e.key,
+            barsSpace: 4,
+            barRods: [
+              BarChartRodData(
+                toY: (e.value['income'] as num).toDouble(), 
+                color: AppTheme.income, 
+                width: 8, 
+                borderRadius: BorderRadius.circular(4)
+              ),
+              BarChartRodData(
+                toY: (e.value['expense'] as num).toDouble(), 
+                color: AppTheme.expense, 
+                width: 8, 
+                borderRadius: BorderRadius.circular(4)
+              ),
+            ]
+          );
         }).toList(),
       )),
     );

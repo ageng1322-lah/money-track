@@ -1,6 +1,6 @@
 {{-- resources/views/livewire/transaction-list.blade.php --}}
 <div class="space-y-10 animate-in fade-in duration-700">
-    <x-slot name="title">Recording</x-slot>
+    <x-slot name="title">RECORDING</x-slot>
 
     {{-- Toast Notification --}}
     @if (session()->has('success'))
