@@ -1,6 +1,6 @@
 {{-- resources/views/profile.blade.php --}}
 <x-layouts.app>
-    <x-slot name="title">Profile</x-slot>
+    <x-slot name="title">PROFILE</x-slot>
 
     <div class="max-w-5xl mx-auto animate-in fade-in duration-700 space-y-10">
         

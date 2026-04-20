@@ -221,10 +221,16 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
               Expanded(
                 child: DropdownButtonFormField<int>(
                   value: _categoryId,
+                  isExpanded: true,
                   decoration: const InputDecoration(labelText: 'CATEGORY'),
-                  items: const [
-                    DropdownMenuItem(value: null, child: Text('General')),
-                    // In a real app, you'd fetch categories here
+                  items: [
+                    const DropdownMenuItem<int>(value: null, child: Text('General')),
+                    // Inject the current category if it's set but not in the default list
+                    if (_categoryId != null)
+                      DropdownMenuItem<int>(
+                        value: _categoryId,
+                        child: const Text('Selected Category'),
+                      ),
                   ],
                   onChanged: (v) => setState(() => _categoryId = v),
                 ),

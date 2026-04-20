@@ -15,7 +15,7 @@ class StoreTransactionRequest extends FormRequest
             'amount'      => 'required|numeric|min:1|max:999999999',
             'type'        => 'required|in:income,expense',
             'category_id' => 'nullable|integer|exists:categories,id',
-            'date'        => 'required|date|before_or_equal:today',
+            'date'        => 'required|date',
             'note'        => 'nullable|string|max:500',
         ];
     }
