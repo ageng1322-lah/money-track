@@ -73,4 +73,16 @@ class ProfileController extends Controller
             'photo_url' => $user->fresh()->photo_url,
         ]);
     }
+
+    public function deletePhoto(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->photo) {
+            Storage::disk('public')->delete($user->photo);
+            $user->update(['photo' => null]);
+        }
+
+        return response()->json(['message' => 'Foto profil berhasil dihapus.']);
+    }
 }

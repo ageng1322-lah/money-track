@@ -8,26 +8,12 @@ import '../../../core/utils/formatters.dart';
 import '../../../shared/providers/providers.dart';
 import '../domain/transaction_entity.dart';
 
-final _transactionListProvider = FutureProvider.autoDispose<PaginatedTransactions>((ref) async {
-  final filter = ref.watch(transactionFilterProvider);
-  final repo   = ref.read(transactionRepositoryProvider);
-  return repo.getTransactions(
-    type:       filter.type,
-    categoryId: filter.categoryId,
-    from:       filter.from,
-    to:         filter.to,
-    search:     filter.search,
-    sort:       filter.sort,
-    order:      filter.order,
-  );
-});
-
 class TransactionListScreen extends ConsumerWidget {
   const TransactionListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final txAsync = ref.watch(_transactionListProvider);
+    final txAsync = ref.watch(transactionListProvider);
     final filter  = ref.watch(transactionFilterProvider);
 
     return Scaffold(
@@ -137,7 +123,7 @@ class TransactionListScreen extends ConsumerWidget {
             onPressed: () async {
               Navigator.pop(context);
               await ref.read(transactionRepositoryProvider).deleteTransaction(id);
-              ref.invalidate(_transactionListProvider);
+              ref.invalidate(transactionListProvider);
               ref.read(dashboardProvider.notifier).refresh();
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.expense, minimumSize: const Size(100, 45)),

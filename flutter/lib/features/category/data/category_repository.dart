@@ -9,7 +9,7 @@ class CategoryRepository {
   CategoryRepository(ApiClient client) : _dio = client.dio;
 
   Future<List<CategoryEntity>> getCategories({String? type}) async {
-    final res = await _dio.get('/categories', queryParameters: {
+    final res = await _dio.get('categories', queryParameters: {
       if (type != null) 'type': type,
     });
     return (res.data['data'] as List).map((c) => CategoryEntity(
@@ -27,7 +27,7 @@ class CategoryRepository {
     required String type,
     String color = '#1D9E75',
   }) async {
-    final res = await _dio.post('/categories', data: {
+    final res = await _dio.post('categories', data: {
       'name':  name,
       'icon':  icon,
       'type':  type,
@@ -41,6 +41,6 @@ class CategoryRepository {
   }
 
   Future<void> deleteCategory(int id) async {
-    await _dio.delete('/categories/$id');
+    await _dio.delete('categories/$id');
   }
 }

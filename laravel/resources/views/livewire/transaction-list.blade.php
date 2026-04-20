@@ -18,8 +18,6 @@
     {{-- Page Header --}}
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-            <h1 class="text-3xl font-outfit font-extrabold text-white tracking-tight italic">Transaction History</h1>
-            <p class="text-white/40 font-bold uppercase tracking-widest text-[10px] mt-2">Detail penuangan arus kas pribadimu.</p>
         </div>
         <div class="flex items-center gap-3">
             <a href="{{ route('transactions.export-pdf') }}" target="_blank"
@@ -172,12 +170,12 @@
                     <button wire:click="$set('fType','expense')"
                         class="flex-1 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300
                             {{ $fType==='expense' ? 'bg-rose-500 text-black shadow-lg shadow-rose-500/20' : 'text-white/20 hover:text-white/40' }}">
-                        Debit
+                        Expense
                     </button>
                     <button wire:click="$set('fType','income')"
                         class="flex-1 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300
                             {{ $fType==='income' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-white/20 hover:text-white/40' }}">
-                        Credit
+                        Income
                     </button>
                 </div>
 

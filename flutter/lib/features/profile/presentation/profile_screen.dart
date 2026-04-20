@@ -1,6 +1,7 @@
 // lib/features/profile/presentation/profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/providers.dart';
 
@@ -53,7 +54,7 @@ class ProfileScreen extends ConsumerWidget {
           const Text('PREFERENCES', style: TextStyle(color: AppTheme.textDim, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
           const SizedBox(height: 16),
           _MenuSection(items: [
-            _MenuItem(icon: Icons.person_outline_rounded, label: 'Personal Information', onTap: () {}),
+            _MenuItem(icon: Icons.person_outline_rounded, label: 'Personal Information', onTap: () => Get.toNamed('/profile/edit')),
             _MenuItem(icon: Icons.shield_outlined, label: 'Security & Password', onTap: () {}),
           ]),
           const SizedBox(height: 24),

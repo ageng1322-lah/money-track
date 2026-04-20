@@ -18,13 +18,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/',             Dashboard::class)->name('dashboard');
     Route::get('/dashboard',    Dashboard::class)->name('dashboard');
     Route::get('/transactions', TransactionList::class)->name('transactions');
+    Route::get('/categories',   \App\Livewire\CategoryList::class)->name('categories');
 
     // PDF Export (via TransactionController)
     Route::get('/transactions/export-pdf',
         [TransactionController::class, 'exportPdf']
     )->name('transactions.export-pdf');
 
-    Route::get('/profile', fn() => view('profile'))->name('profile');
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/photo', [\App\Http\Controllers\ProfileController::class, 'deletePhoto'])->name('profile.photo.delete');
 
     Route::post('/logout', function () {
         auth()->logout();

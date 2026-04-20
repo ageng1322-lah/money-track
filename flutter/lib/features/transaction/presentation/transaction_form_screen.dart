@@ -95,9 +95,9 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
         );
       }
 
+      // Immediate UI update
+      ref.invalidate(transactionListProvider);
       ref.read(dashboardProvider.notifier).refresh();
-      // Also invalidate transaction list
-      // ref.invalidate(transactionListProvider); // if exists
       
       if (mounted) getx.Get.back();
     } catch (e) {
@@ -125,6 +125,8 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final categoriesAsync = ref.watch(categoriesProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? 'Edit Recording' : 'New Recording'),
@@ -151,10 +153,16 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
               child: Row(children: [
                 _TypeButton(label: 'Expense',
                   active: _type == 'expense', color: AppTheme.expense,
-                  onTap:  () => setState(() => _type = 'expense')),
+                  onTap:  () => setState(() {
+                    _type = 'expense';
+                    _categoryId = null; // Reset category when switching type
+                  })),
                 _TypeButton(label: 'Income',
                   active: _type == 'income',  color: AppTheme.income,
-                  onTap:  () => setState(() => _type = 'income')),
+                  onTap:  () => setState(() {
+                    _type = 'income';
+                    _categoryId = null; // Reset category when switching type
+                  })),
               ]),
             ),
             const SizedBox(height: 32),
@@ -219,20 +227,26 @@ class _TransactionFormState extends ConsumerState<TransactionFormScreen> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: DropdownButtonFormField<int>(
-                  value: _categoryId,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'CATEGORY'),
-                  items: [
-                    const DropdownMenuItem<int>(value: null, child: Text('General')),
-                    // Inject the current category if it's set but not in the default list
-                    if (_categoryId != null)
-                      DropdownMenuItem<int>(
-                        value: _categoryId,
-                        child: const Text('Selected Category'),
-                      ),
-                  ],
-                  onChanged: (v) => setState(() => _categoryId = v),
+                child: categoriesAsync.when(
+                  loading: () => const LinearProgressIndicator(color: AppTheme.primary),
+                  error: (err, _) => const Text('Error loading categories'),
+                  data: (categories) {
+                    final filtered = categories.where((c) => c.type == _type || c.type == 'both').toList();
+                    
+                    return DropdownButtonFormField<int>(
+                      value: _categoryId,
+                      isExpanded: true,
+                      decoration: const InputDecoration(labelText: 'CATEGORY'),
+                      items: [
+                        const DropdownMenuItem<int>(value: null, child: Text('General')),
+                        ...filtered.map((c) => DropdownMenuItem<int>(
+                          value: c.id,
+                          child: Text('${c.icon} ${c.name}'),
+                        )),
+                      ],
+                      onChanged: (v) => setState(() => _categoryId = v),
+                    );
+                  },
                 ),
               ),
             ]),

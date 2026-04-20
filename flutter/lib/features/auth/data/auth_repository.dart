@@ -18,7 +18,7 @@ class AuthRepository {
     required String email,
     required String password,
   }) async {
-    final res = await _dio.post('/login', data: {
+    final res = await _dio.post('login', data: {
       'email':    email,
       'password': password,
     });
@@ -33,7 +33,7 @@ class AuthRepository {
     required String password,
     required String passwordConfirmation,
   }) async {
-    final res = await _dio.post('/register', data: {
+    final res = await _dio.post('register', data: {
       'name':                  name,
       'email':                 email,
       'password':              password,
@@ -46,14 +46,14 @@ class AuthRepository {
 
   Future<void> logout() async {
     try {
-      await _dio.post('/logout');
+      await _dio.post('logout');
     } finally {
       await _storage.delete(key: AppConstants.tokenKey);
     }
   }
 
   Future<UserEntity> getMe() async {
-    final res = await _dio.get('/me');
+    final res = await _dio.get('me');
     return _mapUser(res.data);
   }
 

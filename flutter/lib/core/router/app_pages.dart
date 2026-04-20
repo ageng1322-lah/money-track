@@ -6,6 +6,7 @@ import '../../features/dashboard/presentation/dashboard_screen.dart';
 import '../../features/transaction/presentation/transaction_list_screen.dart';
 import '../../features/transaction/presentation/transaction_form_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/profile/presentation/detail_profile_screen.dart';
 import '../../shared/widgets/main_scaffold.dart';
 import '../../features/auth/presentation/auth_controller.dart';
 
@@ -34,6 +35,11 @@ class AppPages {
     GetPage(
       name: '/profile',
       page: () => const MainScaffold(child: ProfileScreen()),
+      middlewares: [AuthMiddleware()],
+    ),
+    GetPage(
+      name: '/profile/edit',
+      page: () => const DetailProfileScreen(),
       middlewares: [AuthMiddleware()],
     ),
     GetPage(

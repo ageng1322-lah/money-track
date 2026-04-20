@@ -140,25 +140,33 @@
                                 display: false
                             },
                             tooltip: {
-                                backgroundColor: '#111111',
+                                backgroundColor: document.body.classList.contains('light-mode') ? '#ffffff' : '#111111',
                                 titleFont: { family: 'Outfit', size: 14 },
                                 bodyFont: { family: 'Inter', size: 12 },
                                 padding: 12,
                                 cornerRadius: 12,
-                                borderColor: 'rgba(255,255,255,0.1)',
-                                borderWidth: 1
+                                borderColor: document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                borderWidth: 1,
+                                titleColor: document.body.classList.contains('light-mode') ? '#0f172a' : '#ffffff',
+                                bodyColor: document.body.classList.contains('light-mode') ? '#64748b' : 'rgba(255,255,255,0.6)'
                             }
                         },
                         scales: {
                             x: {
                                 grid: { display: false },
-                                ticks: { color: 'rgba(255,255,255,0.2)', font: { family: 'Inter', weight: 'bold', size: 10 } }
+                                ticks: { 
+                                    color: document.body.classList.contains('light-mode') ? 'rgba(15,23,42,0.4)' : 'rgba(255,255,255,0.2)', 
+                                    font: { family: 'Inter', weight: 'bold', size: 10 } 
+                                }
                             },
                             y: {
-                                grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+                                grid: { 
+                                    color: document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)', 
+                                    drawTicks: false 
+                                },
                                 border: { display: false },
                                 ticks: { 
-                                    color: 'rgba(255,255,255,0.2)', 
+                                    color: document.body.classList.contains('light-mode') ? 'rgba(15,23,42,0.4)' : 'rgba(255,255,255,0.2)', 
                                     font: { family: 'Inter', weight: 'bold', size: 10 },
                                     callback: v => v >= 1000000 ? (v/1000000)+'M' : (v >= 1000 ? (v/1000)+'K' : v)
                                 }
@@ -169,9 +177,16 @@
             };
 
             let myChart = renderChart(chartData);
-            Livewire.on('chartUpdated', (data) => {
+            
+            window.addEventListener('theme-changed', () => {
                 myChart.destroy();
-                myChart = renderChart(data[0]);
+                myChart = renderChart(chartData);
+            });
+
+            Livewire.on('chartUpdated', (data) => {
+                chartData = data[0];
+                myChart.destroy();
+                myChart = renderChart(chartData);
             });
         });
     </script>

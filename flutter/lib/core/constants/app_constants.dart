@@ -6,7 +6,7 @@ class AppConstants {
   static const String appName = 'FinTrack';
 
   // API
-  static const String baseUrl    = 'http://localhost:8000/api/v1';
+  static const String baseUrl    = 'http://localhost:8000/api/v1/';
   static const int    connectTimeout = 30;
   static const int    receiveTimeout = 30;
 

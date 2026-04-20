@@ -32,6 +32,15 @@
             Recording
         </a>
 
+        <a href="{{ route('categories') }}"
+            class="group flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-bold transition-all duration-300
+                {{ request()->routeIs('categories*') ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-white/40 hover:text-white hover:bg-white/5' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 12h.01M7 17h.01M10 12h10M10 17h10M10 7h10" />
+            </svg>
+            Categories
+        </a>
+
         <a href="{{ route('profile') }}"
             class="group flex items-center gap-3 px-4 py-4 rounded-2xl text-sm font-bold transition-all duration-300
                 {{ request()->routeIs('profile') ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-white/40 hover:text-white hover:bg-white/5' }}">

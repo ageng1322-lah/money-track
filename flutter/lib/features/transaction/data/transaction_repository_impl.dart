@@ -19,7 +19,7 @@ class TransactionRepository {
     int     page    = 1,
     int     perPage = 15,
   }) async {
-    final res = await _dio.get('/transactions', queryParameters: {
+    final res = await _dio.get('transactions', queryParameters: {
       if (type       != null) 'type':        type,
       if (categoryId != null) 'category_id': categoryId,
       if (from       != null) 'from':        from,
@@ -48,7 +48,7 @@ class TransactionRepository {
     int?    categoryId,
     String? note,
   }) async {
-    final res = await _dio.post('/transactions', data: {
+    final res = await _dio.post('transactions', data: {
       'title':       title,
       'amount':      amount,
       'type':        type,
@@ -60,16 +60,16 @@ class TransactionRepository {
   }
 
   Future<TransactionEntity> updateTransaction(int id, Map<String, dynamic> data) async {
-    final res = await _dio.put('/transactions/$id', data: data);
+    final res = await _dio.put('transactions/$id', data: data);
     return _mapTransaction(res.data['data']);
   }
 
   Future<void> deleteTransaction(int id) async {
-    await _dio.delete('/transactions/$id');
+    await _dio.delete('transactions/$id');
   }
 
   Future<TransactionEntity> getTransactionById(int id) async {
-    final res = await _dio.get('/transactions/$id');
+    final res = await _dio.get('transactions/$id');
     return _mapTransaction(res.data['data']);
   }
 

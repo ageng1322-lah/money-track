@@ -3,6 +3,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/network/api_client.dart';
 import '../../features/auth/data/auth_repository.dart';
+import '../../features/profile/data/profile_repository.dart';
+import '../../features/category/data/category_repository.dart';
 import '../../features/transaction/data/transaction_repository_impl.dart';
 import '../../features/transaction/domain/transaction_entity.dart';
 import 'package:dio/dio.dart';
@@ -23,6 +25,16 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
 final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   final client = ref.watch(apiClientProvider);
   return TransactionRepository(client);
+});
+
+final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
+  final client = ref.watch(apiClientProvider);
+  return ProfileRepository(client);
+});
+
+final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
+  final client = ref.watch(apiClientProvider);
+  return CategoryRepository(client);
 });
 
 // Auth Provider
@@ -86,6 +98,26 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
   }
 }
 
+// Category Provider
+final categoriesProvider = FutureProvider.autoDispose<List<CategoryEntity>>((ref) async {
+  return ref.watch(categoryRepositoryProvider).getCategories();
+});
+
+// Transaction List Provider
+final transactionListProvider = FutureProvider.autoDispose<PaginatedTransactions>((ref) async {
+  final filter = ref.watch(transactionFilterProvider);
+  final repo   = ref.read(transactionRepositoryProvider);
+  return repo.getTransactions(
+    type:       filter.type,
+    categoryId: filter.categoryId,
+    from:       filter.from,
+    to:         filter.to,
+    search:     filter.search,
+    sort:       filter.sort,
+    order:      filter.order,
+  );
+});
+
 // Transaction Filter Provider
 class TransactionFilter {
   final String? type;
@@ -141,7 +173,7 @@ class DashboardNotifier extends AsyncNotifier<Map<String, dynamic>> {
   @override
   Future<Map<String, dynamic>> build() async {
     final dio = ref.watch(apiClientProvider).dio;
-    final res = await dio.get('/dashboard');
+    final res = await dio.get('dashboard');
     return res.data as Map<String, dynamic>;
   }
 
@@ -149,7 +181,7 @@ class DashboardNotifier extends AsyncNotifier<Map<String, dynamic>> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final dio = ref.watch(apiClientProvider).dio;
-      final res = await dio.get('/dashboard');
+      final res = await dio.get('dashboard');
       return res.data as Map<String, dynamic>;
     });
   }
