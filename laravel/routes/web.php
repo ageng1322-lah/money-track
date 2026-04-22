@@ -13,9 +13,13 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'register']);
 });
 
+// Landing page
+Route::get('/', function () {
+    return view('landing');
+})->name('landing');
+
 // Protected web routes (Livewire)
 Route::middleware('auth')->group(function () {
-    Route::get('/',             Dashboard::class)->name('dashboard');
     Route::get('/dashboard',    Dashboard::class)->name('dashboard');
     Route::get('/transactions', TransactionList::class)->name('transactions');
     Route::get('/categories',   \App\Livewire\CategoryList::class)->name('categories');
