@@ -40,3 +40,14 @@ Route::middleware('auth')->group(function () {
         return redirect('/login');
     })->name('logout');
 });
+
+// Admin routes
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/users', \App\Livewire\Admin\UserManagement::class)->name('admin.users');
+    Route::get('/transactions', \App\Livewire\Admin\GlobalTransactions::class)->name('admin.transactions');
+    Route::get('/profile', \App\Livewire\Admin\Profile::class)->name('admin.profile');
+    
+    // Admin category management
+    Route::get('/categories', \App\Livewire\Admin\CategoryManagement::class)->name('admin.categories');
+});

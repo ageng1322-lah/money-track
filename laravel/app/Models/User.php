@@ -17,6 +17,7 @@ class User extends Authenticatable
         'email',
         'password',
         'photo',
+        'role',
     ];
 
     protected $hidden = [
@@ -28,6 +29,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
     ];
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
 
     public function transactions(): HasMany
     {
