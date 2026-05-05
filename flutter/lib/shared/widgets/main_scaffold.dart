@@ -10,7 +10,8 @@ class MainScaffold extends StatelessWidget {
   int _getCurrentIndex() {
     final location = getx.Get.currentRoute;
     if (location.startsWith('/transactions')) return 1;
-    if (location.startsWith('/profile'))      return 2;
+    if (location.startsWith('/profile'))      return 3;
+    if (location.startsWith('/setting'))      return 4;
     return 0;
   }
 
@@ -20,25 +21,60 @@ class MainScaffold extends StatelessWidget {
 
     return Scaffold(
       body: child,
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.only(top: 12, bottom: 0),
-        decoration: BoxDecoration(
-          color:  AppTheme.background,
-          border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05), width: 1)),
-        ),
-        child: SafeArea(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => getx.Get.toNamed('/transactions/add'),
+        backgroundColor: AppTheme.primary,
+        shape: const CircleBorder(),
+        elevation: 4,
+        child: Icon(Icons.add_rounded, color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white, size: 32),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        padding: EdgeInsets.zero,
+        color: Theme.of(context).scaffoldBackgroundColor,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8,
+        child: Container(
+          height: 80,
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05), width: 1)),
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _NavItem(icon: Icons.grid_view_rounded, activeIcon: Icons.grid_view_rounded,
-                label: 'HOME',    index: 0, current: currentIndex,
-                onTap: () => getx.Get.offNamed('/dashboard')),
-              _NavItem(icon: Icons.receipt_long_rounded, activeIcon: Icons.receipt_long_rounded,
-                label: 'RECORDS', index: 1, current: currentIndex,
-                onTap: () => getx.Get.offNamed('/transactions')),
-              _NavItem(icon: Icons.person_rounded,     activeIcon: Icons.person_rounded,
-                label: 'PROFILE',  index: 2, current: currentIndex,
-                onTap: () => getx.Get.offNamed('/profile')),
+              _NavItem(
+                icon: Icons.home_outlined, 
+                activeIcon: Icons.home_rounded,
+                label: 'HOME', 
+                index: 0, 
+                current: currentIndex,
+                onTap: () => getx.Get.offNamed('/dashboard'),
+              ),
+              _NavItem(
+                icon: Icons.receipt_long_outlined, 
+                activeIcon: Icons.receipt_long_rounded,
+                label: 'TRANSAKSI', 
+                index: 1, 
+                current: currentIndex,
+                onTap: () => getx.Get.offNamed('/transactions'),
+              ),
+              const SizedBox(width: 48), // Spacer for FAB
+              _NavItem(
+                icon: Icons.person_outline_rounded, 
+                activeIcon: Icons.person_rounded,
+                label: 'PROFILE', 
+                index: 3, 
+                current: currentIndex,
+                onTap: () => getx.Get.offNamed('/profile'),
+              ),
+              _NavItem(
+                icon: Icons.settings_outlined, 
+                activeIcon: Icons.settings_rounded,
+                label: 'SETTING', 
+                index: 4, 
+                current: currentIndex,
+                onTap: () => getx.Get.offNamed('/setting'),
+              ),
             ],
           ),
         ),
@@ -66,21 +102,14 @@ class _NavItem extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(isActive ? activeIcon : icon, color: isActive ? AppTheme.primary : Colors.white, size: 24),
+          Icon(isActive ? activeIcon : icon, color: isActive ? AppTheme.primary : Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 24),
           const SizedBox(height: 6),
           Text(label, style: TextStyle(
             fontSize:   9,
             fontWeight: FontWeight.w900,
             letterSpacing: 1,
-            color:      isActive ? AppTheme.primary : Colors.white,
+            color:      isActive ? AppTheme.primary : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
           )),
-          const SizedBox(height: 12),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: isActive ? 4 : 0,
-            height: 4,
-            decoration: const BoxDecoration(color: AppTheme.primary, shape: BoxShape.circle),
-          ),
         ],
       ),
     ),

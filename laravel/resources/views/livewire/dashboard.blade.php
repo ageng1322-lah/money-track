@@ -2,6 +2,26 @@
 <div class="space-y-10 animate-in fade-in duration-700">
     <x-slot name="title">DASHBOARD</x-slot>
 
+    {{-- Filters --}}
+    <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+            <div class="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
+            <h4 class="text-xs font-black text-white/40 uppercase tracking-[0.2em]">Ringkasan Finansial</h4>
+        </div>
+        <div class="flex items-center gap-3">
+            <select wire:model.live="month" class="bg-[#111111] border border-white/5 text-white/60 text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-emerald-500/50 transition-all cursor-pointer">
+                @foreach(range(1, 12) as $m)
+                    <option value="{{ $m }}">{{ \Carbon\Carbon::create()->month($m)->format('F') }}</option>
+                @endforeach
+            </select>
+            <select wire:model.live="year" class="bg-[#111111] border border-white/5 text-white/60 text-xs font-bold rounded-xl px-4 py-2.5 outline-none focus:border-emerald-500/50 transition-all cursor-pointer">
+                @foreach(range(date('Y')-2, date('Y')+1) as $y)
+                    <option value="{{ $y }}">{{ $y }}</option>
+                @endforeach
+            </select>
+        </div>
+    </div>
+
     {{-- Top Stats --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {{-- Total Balance --}}
@@ -30,7 +50,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                     </svg>
                 </div>
-                <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Pemasukan</span>
+                <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Pemasukan Bulan ini</span>
             </div>
             <h3 class="text-4xl font-outfit font-extrabold tracking-tight text-emerald-500">Rp{{ number_format($totalIncome, 0, ',', '.') }}</h3>
         </div>
@@ -43,7 +63,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </svg>
                 </div>
-                <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Pengeluaran</span>
+                <span class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Pengeluaran Bulan ini </span>
             </div>
             <h3 class="text-4xl font-outfit font-extrabold tracking-tight text-rose-500">Rp{{ number_format($totalExpense, 0, ',', '.') }}</h3>
         </div>

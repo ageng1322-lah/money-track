@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart' as getx;
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/providers.dart';
+import '../../../shared/widgets/animations.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -76,11 +77,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       onPressed: () => getx.Get.back(),
                     ),
                     const SizedBox(height: 32),
-                    const Text('CREATE ACCOUNT', style: TextStyle(color: AppTheme.textDim, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                    FadeInAnimation(
+                      delay: const Duration(milliseconds: 100),
+                      child: Text('CREATE ACCOUNT', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                    ),
                     const SizedBox(height: 8),
-                    const Text('Join the Tribe.', style: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, fontFamily: 'Outfit', fontStyle: FontStyle.italic)),
+                    const FadeInAnimation(
+                      delay: Duration(milliseconds: 200),
+                      child: Text('Join the Tribe.', style: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, fontFamily: 'Outfit', fontStyle: FontStyle.italic)),
+                    ),
                     const SizedBox(height: 12),
-                    const Text('Start your professional financial journey.', style: TextStyle(color: AppTheme.textDim, fontSize: 15, fontWeight: FontWeight.w500)),
+                    FadeInAnimation(
+                      delay: const Duration(milliseconds: 300),
+                      child: Text('Start your professional financial journey.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 15, fontWeight: FontWeight.w500)),
+                    ),
                     const SizedBox(height: 48),
 
                     if (_error != null) ...[
@@ -96,59 +106,74 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       const SizedBox(height: 24),
                     ],
 
-                    TextFormField(
-                      controller: _nameCtrl,
-                      decoration: const InputDecoration(labelText: 'FULL NAME', hintText: 'M. Fauzi'),
-                      validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-
-                    TextFormField(
-                      controller: _emailCtrl,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(labelText: 'EMAIL ADDRESS', hintText: 'name@domain.com'),
-                      validator: (v) => (v == null || !v.contains('@')) ? 'Invalid email' : null,
-                    ),
-                    const SizedBox(height: 16),
-
-                    TextFormField(
-                      controller: _passCtrl,
-                      obscureText: _obscure,
-                      decoration: InputDecoration(
-                        labelText: 'PASSWORD',
-                        hintText: '••••••••',
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: AppTheme.textDim, size: 20),
-                          onPressed: () => setState(() => _obscure = !_obscure),
-                        ),
+                    FadeInAnimation(
+                      delay: const Duration(milliseconds: 400),
+                      child: TextFormField(
+                        controller: _nameCtrl,
+                        decoration: const InputDecoration(labelText: 'FULL NAME', hintText: 'M. Fauzi'),
+                        validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
                       ),
-                      validator: (v) => (v == null || v.length < 8) ? 'Min 8 characters' : null,
                     ),
                     const SizedBox(height: 16),
 
-                    TextFormField(
-                      controller: _confCtrl,
-                      obscureText: true,
-                      decoration: const InputDecoration(labelText: 'CONFIRM PASSWORD', hintText: 'Confirm your password'),
-                      validator: (v) => v != _passCtrl.text ? 'Passwords do not match' : null,
+                    FadeInAnimation(
+                      delay: const Duration(milliseconds: 500),
+                      child: TextFormField(
+                        controller: _emailCtrl,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(labelText: 'EMAIL ADDRESS', hintText: 'name@domain.com'),
+                        validator: (v) => (v == null || !v.contains('@')) ? 'Invalid email' : null,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    FadeInAnimation(
+                      delay: const Duration(milliseconds: 600),
+                      child: TextFormField(
+                        controller: _passCtrl,
+                        obscureText: _obscure,
+                        decoration: InputDecoration(
+                          labelText: 'PASSWORD',
+                          hintText: '••••••••',
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+                            onPressed: () => setState(() => _obscure = !_obscure),
+                          ),
+                        ),
+                        validator: (v) => (v == null || v.length < 8) ? 'Min 8 characters' : null,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    FadeInAnimation(
+                      delay: const Duration(milliseconds: 700),
+                      child: TextFormField(
+                        controller: _confCtrl,
+                        obscureText: true,
+                        decoration: const InputDecoration(labelText: 'CONFIRM PASSWORD', hintText: 'Confirm your password'),
+                        validator: (v) => v != _passCtrl.text ? 'Passwords do not match' : null,
+                      ),
                     ),
                     const SizedBox(height: 40),
 
-                    ElevatedButton(
-                      onPressed: loading ? null : _submit,
-                      child: loading
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 3))
-                          : const Text('CREATE ACCOUNT'),
+                    FadeInAnimation(
+                      delay: const Duration(milliseconds: 800),
+                      child: ElevatedButton(
+                        onPressed: loading ? null : _submit,
+                        child: loading
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 3))
+                            : const Text('CREATE ACCOUNT'),
+                      ),
                     ),
                     const SizedBox(height: 32),
 
                     Center(
                       child: GestureDetector(
                         onTap: () => getx.Get.back(),
-                        child: RichText(text: const TextSpan(
+                        child: RichText(text: TextSpan(
                           text: "Already joined? ",
-                          style: TextStyle(color: AppTheme.textDim, fontSize: 14, fontWeight: FontWeight.w600),
-                          children: [TextSpan(
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14, fontWeight: FontWeight.w600),
+                          children: const [TextSpan(
                             text: 'Sign in',
                             style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w900),
                           )],

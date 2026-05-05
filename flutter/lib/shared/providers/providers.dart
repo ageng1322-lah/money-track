@@ -1,5 +1,6 @@
 // lib/shared/providers/providers.dart
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/network/api_client.dart';
 import '../../features/auth/data/auth_repository.dart';
@@ -164,6 +165,9 @@ final transactionFilterProvider = StateProvider<TransactionFilter>((ref) {
   return TransactionFilter();
 });
 
+// Dashboard Date Filter Provider
+final dashboardDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+
 // Dashboard Provider
 final dashboardProvider = AsyncNotifierProvider<DashboardNotifier, Map<String, dynamic>>(() {
   return DashboardNotifier();
@@ -172,17 +176,31 @@ final dashboardProvider = AsyncNotifierProvider<DashboardNotifier, Map<String, d
 class DashboardNotifier extends AsyncNotifier<Map<String, dynamic>> {
   @override
   Future<Map<String, dynamic>> build() async {
-    final dio = ref.watch(apiClientProvider).dio;
-    final res = await dio.get('dashboard');
+    final date = ref.watch(dashboardDateProvider);
+    final dio  = ref.watch(apiClientProvider).dio;
+    
+    final res = await dio.get('dashboard', queryParameters: {
+      'month': date.month,
+      'year':  date.year,
+    });
     return res.data as Map<String, dynamic>;
   }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final dio = ref.watch(apiClientProvider).dio;
-      final res = await dio.get('dashboard');
+      final date = ref.read(dashboardDateProvider);
+      final dio  = ref.watch(apiClientProvider).dio;
+      final res = await dio.get('dashboard', queryParameters: {
+        'month': date.month,
+        'year':  date.year,
+      });
       return res.data as Map<String, dynamic>;
     });
   }
 }
+
+// Theme Provider
+final themeModeProvider = StateProvider<ThemeMode>((ref) {
+  return ThemeMode.dark; // Default to dark as requested previously
+});

@@ -14,17 +14,41 @@ class DashboardService
         $cacheKey = "dashboard.summary.{$userId}.{$year}.{$month}";
 
         return Cache::remember($cacheKey, 300, function () use ($userId, $month, $year) {
-            $base = Transaction::where('user_id', $userId)
+            // Monthly stats
+            $monthlyBase = Transaction::where('user_id', $userId)
                 ->whereMonth('date', $month)
                 ->whereYear('date',  $year);
 
-            $totalIncome  = (clone $base)->income()->sum('amount');
-            $totalExpense = (clone $base)->expense()->sum('amount');
-            $balance      = $totalIncome - $totalExpense;
+            $incomeQuery  = (clone $monthlyBase)->income();
+            $expenseQuery = (clone $monthlyBase)->expense();
+
+            $totalIncome  = $incomeQuery->sum('amount');
+            $totalExpense = $expenseQuery->sum('amount');
+            $incomeCount  = $incomeQuery->count();
+            $expenseCount = $expenseQuery->count();
+            
+            // Global balance (All time)
+            $globalIncome = Transaction::where('user_id', $userId)->income()->sum('amount');
+            $globalExpense = Transaction::where('user_id', $userId)->expense()->sum('amount');
+            $balance = $globalIncome - $globalExpense;
+
+            // Largest income source this month
+            $largestIncome = (clone $incomeQuery)
+                ->with('category')
+                ->orderByDesc('amount')
+                ->first();
+
+            // Daily average expense this month
+            $daysInMonth = now()->month($month)->year($year)->daysInMonth;
+            $dailyAvg = $expenseCount > 0 ? $totalExpense / $daysInMonth : 0;
 
             return [
                 'total_income'   => (float) $totalIncome,
                 'total_expense'  => (float) $totalExpense,
+                'income_count'   => $incomeCount,
+                'expense_count'  => $expenseCount,
+                'largest_income' => $largestIncome?->category?->name ?? 'N/A',
+                'daily_avg'      => (float) $dailyAvg,
                 'balance'        => (float) $balance,
                 'month'          => $month,
                 'year'           => $year,
@@ -71,10 +95,12 @@ class DashboardService
             ->get();
     }
 
-    public function clearCache(int $userId): void
+    public function clearCache(int $userId, ?int $month = null, ?int $year = null): void
     {
-        $now = now();
-        Cache::forget("dashboard.summary.{$userId}.{$now->year}.{$now->month}");
-        Cache::forget("dashboard.chart.{$userId}.{$now->year}");
+        $month = $month ?? now()->month;
+        $year  = $year  ?? now()->year;
+
+        Cache::forget("dashboard.summary.{$userId}.{$year}.{$month}");
+        Cache::forget("dashboard.chart.{$userId}.{$year}");
     }
 }

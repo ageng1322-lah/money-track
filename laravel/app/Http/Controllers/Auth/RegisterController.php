@@ -20,18 +20,25 @@ class RegisterController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
+        $otp = str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);
+
         $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
+            'name'           => $request->name,
+            'email'          => $request->email,
+            'password'       => Hash::make($request->password),
+            'otp_code'       => $otp,
+            'otp_expires_at' => now()->addMinutes(10),
         ]);
 
         // Seed default categories
         $this->seedDefaultCategories($user->id);
 
+        // Send OTP Email
+        \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\SendOtpMail($otp));
+
         Auth::login($user);
 
-        return redirect('/dashboard');
+        return redirect()->route('otp.verify');
     }
 
     private function seedDefaultCategories(int $userId): void

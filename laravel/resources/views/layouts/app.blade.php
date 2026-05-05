@@ -65,7 +65,7 @@
         .light-mode aside .bg-white\/5 { background-color: #f1f5f9 !important; border: none !important; }
     </style>
 </head>
-<body class="h-full antialiased overflow-x-hidden">
+<body class="h-full antialiased overflow-x-hidden" x-data="{}">
     <script>
         if (localStorage.getItem('theme') === 'light') {
             document.body.classList.add('light-mode');
@@ -85,6 +85,14 @@
                 <p class="text-white/40 text-[10px] font-bold uppercase tracking-widest mt-0.5">Selamat datang kembali, {{ Auth::user()->name }}!</p>
             </div>
             <div class="flex items-center gap-6">
+                <!-- AI Agent Button -->
+                <button onclick="toggleAiAgent()" class="w-10 h-10 flex items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 transition-all border border-emerald-500/20 group relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    <span class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full animate-ping"></span>
+                </button>
+
                 <button onclick="toggleTheme()" class="w-10 h-10 flex items-center justify-center rounded-2xl bg-white/5 text-white/40 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all border border-white/5">
                     <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -124,9 +132,15 @@
         // Dispatch event for other components (like charts)
         window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme } }));
     }
+
+    function toggleAiAgent() {
+        window.dispatchEvent(new CustomEvent('toggle-ai-agent'));
+    }
 </script>
 
-@livewireScripts
+    @livewire('ai-agent')
+    @livewireScripts
+
 @stack('scripts')
 </body>
 </html>

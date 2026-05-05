@@ -11,7 +11,10 @@ class CategoryController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $categories = Category::where('user_id', $request->user()->id)
+        $categories = Category::where(function($q) use ($request) {
+                $q->where('user_id', $request->user()->id)
+                  ->orWhereNull('user_id');
+            })
             ->when($request->type, fn($q) => $q->whereIn('type', [$request->type, 'both']))
             ->orderBy('name')
             ->get();

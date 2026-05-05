@@ -19,7 +19,7 @@ Route::get('/', function () {
 })->name('landing');
 
 // Protected web routes (Livewire)
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'otp'])->group(function () {
     Route::get('/dashboard',    Dashboard::class)->name('dashboard');
     Route::get('/transactions', TransactionList::class)->name('transactions');
     Route::get('/categories',   \App\Livewire\CategoryList::class)->name('categories');
@@ -41,8 +41,10 @@ Route::middleware('auth')->group(function () {
     })->name('logout');
 });
 
+Route::middleware('auth')->get('/verify-otp', \App\Livewire\Auth\VerifyOtp::class)->name('otp.verify');
+
 // Admin routes
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'otp', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/users', \App\Livewire\Admin\UserManagement::class)->name('admin.users');
     Route::get('/transactions', \App\Livewire\Admin\GlobalTransactions::class)->name('admin.transactions');

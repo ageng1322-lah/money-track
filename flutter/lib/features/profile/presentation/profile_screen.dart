@@ -25,9 +25,9 @@ class ProfileScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppTheme.surface,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(32),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05)),
             ),
             child: Row(children: [
               CircleAvatar(
@@ -35,7 +35,7 @@ class ProfileScreen extends ConsumerWidget {
                 backgroundColor: AppTheme.primary,
                 backgroundImage: user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
                 child: user.photoUrl == null
-                    ? Text(user.name[0].toUpperCase(), style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black))
+                    ? Text(user.name[0].toUpperCase(), style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white))
                     : null,
               ),
               const SizedBox(width: 20),
@@ -44,14 +44,14 @@ class ProfileScreen extends ConsumerWidget {
                 children: [
                   Text(user.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, fontFamily: 'Outfit')),
                   const SizedBox(height: 4),
-                  Text(user.email, style: const TextStyle(color: AppTheme.textDim, fontSize: 13, fontWeight: FontWeight.bold)),
+                  Text(user.email, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.bold)),
                 ],
               )),
             ]),
           ),
           const SizedBox(height: 40),
 
-          const Text('PREFERENCES', style: TextStyle(color: AppTheme.textDim, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+          Text('PREFERENCES', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
           const SizedBox(height: 16),
           _MenuSection(items: [
             _MenuItem(icon: Icons.person_outline_rounded, label: 'Personal Information', onTap: () => Get.toNamed('/profile/edit')),
@@ -59,7 +59,7 @@ class ProfileScreen extends ConsumerWidget {
           ]),
           const SizedBox(height: 24),
 
-          const Text('APP SETTINGS', style: TextStyle(color: AppTheme.textDim, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+          Text('APP SETTINGS', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
           const SizedBox(height: 16),
           _MenuSection(items: [
             _MenuItem(icon: Icons.notifications_none_rounded, label: 'Notification Settings', onTap: () {}),
@@ -81,12 +81,12 @@ class ProfileScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: AppTheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text('SIGN OUT?', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w900)),
-        content: const Text('Are you sure you want to log out from MoneyTrack?', style: TextStyle(color: AppTheme.textDim)),
+        content: Text('Are you sure you want to log out from MoneyTrack?', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: AppTheme.textDim, fontWeight: FontWeight.bold))),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text('CANCEL', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold))),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
@@ -108,9 +108,9 @@ class _MenuSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
-      color:        AppTheme.surface,
+      color:        Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(24),
-      border:       Border.all(color: Colors.white.withOpacity(0.05)),
+      border:       Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05)),
     ),
     child: Column(
       children: items.asMap().entries.map((e) {
@@ -121,10 +121,10 @@ class _MenuSection extends StatelessWidget {
             onTap: item.onTap,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             leading: Icon(item.icon, color: item.color ?? AppTheme.primary, size: 22),
-            title: Text(item.label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: item.color ?? Colors.white)),
-            trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.textDim, size: 20),
+            title: Text(item.label, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: item.color ?? Theme.of(context).colorScheme.onSurface)),
+            trailing: Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
           ),
-          if (!last) Divider(height: 1, color: Colors.white.withOpacity(0.05), indent: 16, endIndent: 16),
+          if (!last) Divider(height: 1, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05), indent: 16, endIndent: 16),
         ]);
       }).toList(),
     ),

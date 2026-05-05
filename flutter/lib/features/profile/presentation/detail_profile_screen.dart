@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/providers.dart';
+import '../../../shared/widgets/animations.dart';
 
 class DetailProfileScreen extends ConsumerStatefulWidget {
   const DetailProfileScreen({super.key});
@@ -40,7 +41,7 @@ class _DetailProfileScreenState extends ConsumerState<DetailProfileScreen> {
       title, 
       msg,
       backgroundColor: isError ? AppTheme.expense : AppTheme.primary,
-      colorText: isError ? Colors.white : Colors.black,
+      colorText: isError ? Colors.white : (Get.isDarkMode ? Colors.black : Colors.white),
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(16),
     );
@@ -74,12 +75,12 @@ class _DetailProfileScreenState extends ConsumerState<DetailProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text('DELETE PHOTO?', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w900)),
         content: const Text('Are you sure you want to remove your profile photo?', style: TextStyle(color: AppTheme.textDim)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('CANCEL', style: TextStyle(color: AppTheme.textDim))),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text('CANCEL', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.expense, minimumSize: const Size(100, 40)),
@@ -139,10 +140,6 @@ class _DetailProfileScreenState extends ConsumerState<DetailProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('PERSONAL INFO'),
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-        ),
       ),
       body: Stack(
         children: [
@@ -152,49 +149,52 @@ class _DetailProfileScreenState extends ConsumerState<DetailProfileScreen> {
               key: _formKey,
               child: Column(
                 children: [
-                  Center(
-                    child: Stack(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AppTheme.primary.withOpacity(0.5), width: 2),
-                          ),
-                          child: CircleAvatar(
-                            radius: 60,
-                            backgroundColor: AppTheme.surface,
-                            backgroundImage: user?.photoUrl != null ? NetworkImage(user!.photoUrl!) : null,
-                            child: user?.photoUrl == null
-                                ? Text(initial, 
-                                    style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: AppTheme.primary, fontStyle: FontStyle.italic))
-                                : null,
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: GestureDetector(
-                            onTap: _pickImage,
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppTheme.primary,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: AppTheme.background, width: 4),
-                                boxShadow: [
-                                  BoxShadow(color: AppTheme.primary.withOpacity(0.3), blurRadius: 10, spreadRadius: 2),
-                                ],
-                              ),
-                              child: const Icon(Icons.camera_alt_rounded, color: Colors.black, size: 20),
+                  FadeInAnimation(
+                    delay: const Duration(milliseconds: 100),
+                    child: Center(
+                      child: Stack(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppTheme.primary.withOpacity(0.5), width: 2),
+                            ),
+                            child: CircleAvatar(
+                              radius: 60,
+                              backgroundColor: Theme.of(context).colorScheme.surface,
+                              backgroundImage: (user?.photoUrl != null && user!.photoUrl!.isNotEmpty) ? NetworkImage(user!.photoUrl!) : null,
+                              child: (user?.photoUrl == null || user!.photoUrl!.isEmpty)
+                                  ? Text(initial, 
+                                      style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: AppTheme.primary, fontStyle: FontStyle.italic))
+                                  : null,
                             ),
                           ),
-                        ),
-                      ],
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: _pickImage,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primary,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 4),
+                                  boxShadow: [
+                                    BoxShadow(color: AppTheme.primary.withOpacity(0.3), blurRadius: 10, spreadRadius: 2),
+                                  ],
+                                ),
+                                child: Icon(Icons.camera_alt_rounded, color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white, size: 20),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  if (user?.photoUrl != null)
+                  if (user?.photoUrl != null && user!.photoUrl!.isNotEmpty)
                     TextButton.icon(
                       onPressed: _deletePhoto,
                       icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppTheme.expense),
@@ -203,49 +203,54 @@ class _DetailProfileScreenState extends ConsumerState<DetailProfileScreen> {
                     ),
                   
                   const SizedBox(height: 48),
-
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('FULL NAME', style: TextStyle(color: AppTheme.textDim, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _nameController,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                        decoration: const InputDecoration(
-                          hintText: 'Enter your name',
-                          prefixIcon: Icon(Icons.person_outline_rounded, color: AppTheme.textDim),
+                  FadeInAnimation(
+                    delay: const Duration(milliseconds: 200),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('FULL NAME', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _nameController,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          decoration: InputDecoration(
+                            hintText: 'Enter your name',
+                            prefixIcon: Icon(Icons.person_outline_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          ),
+                          validator: (v) => v!.isEmpty ? 'Name cannot be empty' : null,
                         ),
-                        validator: (v) => v!.isEmpty ? 'Name cannot be empty' : null,
-                      ),
-                      const SizedBox(height: 24),
-                      const Text('EMAIL ADDRESS', style: TextStyle(color: AppTheme.textDim, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _emailController,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                        decoration: const InputDecoration(
-                          hintText: 'Enter your email',
-                          prefixIcon: Icon(Icons.email_outlined, color: AppTheme.textDim),
+                        const SizedBox(height: 24),
+                        Text('EMAIL ADDRESS', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _emailController,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          decoration: InputDecoration(
+                            hintText: 'Enter your email',
+                            prefixIcon: Icon(Icons.email_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          ),
+                          validator: (v) => v!.isEmpty ? 'Email cannot be empty' : null,
                         ),
-                        validator: (v) => v!.isEmpty ? 'Email cannot be empty' : null,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   
                   const SizedBox(height: 60),
 
-                  ElevatedButton(
-                    onPressed: _isSaving ? null : _save,
-                    child: _isSaving 
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 3, color: Colors.black))
-                      : const Text('SAVE CHANGES'),
+                  FadeInAnimation(
+                    delay: const Duration(milliseconds: 300),
+                    child: ElevatedButton(
+                      onPressed: _isSaving ? null : _save,
+                      child: _isSaving 
+                        ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 3, color: Theme.of(context).colorScheme.onPrimary))
+                        : const Text('SAVE CHANGES'),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () => Get.back(),
                     style: TextButton.styleFrom(minimumSize: const Size(double.infinity, 56)),
-                    child: const Text('DISCARD', style: TextStyle(color: AppTheme.textDim, fontWeight: FontWeight.bold)),
+                    child: Text('DISCARD', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

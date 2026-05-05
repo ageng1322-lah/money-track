@@ -1,4 +1,5 @@
 // lib/main.dart
+import 'package:fintrack/shared/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -28,17 +29,19 @@ void main() async {
   );
 }
 
-class FinTrackApp extends StatelessWidget {
+class FinTrackApp extends ConsumerWidget {
   const FinTrackApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
     return GetMaterialApp(
       title:              'FinTrack',
       debugShowCheckedModeBanner: false,
       theme:              AppTheme.light,
       darkTheme:          AppTheme.dark,
-      themeMode:          ThemeMode.system,
+      themeMode:          themeMode,
       initialRoute:       AppPages.INITIAL,
       getPages:           AppPages.routes,
       initialBinding:     InitialBinding(),

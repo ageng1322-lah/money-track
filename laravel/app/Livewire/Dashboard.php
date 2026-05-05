@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Transaction;
 use App\Services\DashboardService;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class Dashboard extends Component
@@ -34,9 +35,12 @@ class Dashboard extends Component
     public function updatedMonth(): void { $this->loadData(); }
     public function updatedYear(): void  { $this->loadData(); }
 
+    #[On('transaction-saved')]
     public function loadData(): void
     {
         $userId  = Auth::id();
+        $this->dashboardService->clearCache($userId, $this->month, $this->year);
+        
         $summary = $this->dashboardService->getMonthlySummary($userId, $this->month, $this->year);
 
         $this->totalIncome  = $summary['total_income'];

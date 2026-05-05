@@ -5,12 +5,19 @@ namespace App\Livewire;
 use App\Models\Transaction;
 use App\Services\TransactionService;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class TransactionList extends Component
 {
     use WithPagination;
+
+    #[On('transaction-saved')]
+    public function refresh(): void
+    {
+        $this->resetPage();
+    }
 
     public string  $search      = '';
     public string  $type        = '';
