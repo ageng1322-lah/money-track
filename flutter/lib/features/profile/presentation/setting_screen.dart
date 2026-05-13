@@ -6,29 +6,80 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/providers.dart';
 import '../../../shared/widgets/animations.dart';
 
-class SettingScreen extends ConsumerWidget {
-  const SettingScreen({super.key});
+class PreferencesScreen extends ConsumerWidget {
+  const PreferencesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentTheme = ref.watch(themeModeProvider);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('SETTINGS'),
-        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+          onPressed: () => Get.back(),
+        ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
         children: [
+          const SizedBox(height: 10),
           FadeInAnimation(
             delay: const Duration(milliseconds: 100),
-            child: Text('APPEARANCE', 
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 1)),
+            child: Text(
+              'App Preferences',
+              style: TextStyle(
+                color: colorScheme.onSurface,
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Outfit',
+              ),
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
           FadeInAnimation(
             delay: const Duration(milliseconds: 200),
+            child: Text(
+              'Manage your digital command center settings and display options.',
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
+                fontSize: 14,
+                height: 1.5,
+              ),
+            ),
+          ),
+          const SizedBox(height: 40),
+          FadeInAnimation(
+            delay: const Duration(milliseconds: 300),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.palette_outlined, color: AppTheme.primary, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Appearance',
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          FadeInAnimation(
+            delay: const Duration(milliseconds: 400),
             child: Row(
               children: [
                 Expanded(
@@ -51,43 +102,7 @@ class SettingScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 40),
-          FadeInAnimation(
-            delay: const Duration(milliseconds: 300),
-            child: Text('ACCOUNT', 
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.w900, letterSpacing: 1)),
-          ),
-          const SizedBox(height: 20),
-          FadeInAnimation(
-            delay: const Duration(milliseconds: 400),
-            child: _LogoutButton(
-              onTap: () => _confirmLogout(context, ref),
-            ),
-          ),
           const SizedBox(height: 100),
-        ],
-      ),
-    );
-  }
-
-  void _confirmLogout(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('LOGOUT?', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w900)),
-        content: Text('Are you sure you want to exit?', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('CANCEL', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await ref.read(authProvider.notifier).logout();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.expense, minimumSize: const Size(100, 45)),
-            child: const Text('LOGOUT'),
-          ),
         ],
       ),
     );
@@ -109,65 +124,30 @@ class _ThemeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         height: 140,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: colorScheme.surfaceVariant,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isActive ? AppTheme.primary.withOpacity(0.5) : Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+            color: isActive ? AppTheme.primary : colorScheme.onSurface.withOpacity(0.05),
             width: 2,
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 48, color: Colors.yellow[600]),
+            Icon(icon, size: 48, color: isActive ? AppTheme.primary : colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
               label,
-              style: const TextStyle(
-                color: AppTheme.primary,
+              style: TextStyle(
+                color: isActive ? AppTheme.primary : colorScheme.onSurfaceVariant,
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LogoutButton extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _LogoutButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05)),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.logout_rounded, color: AppTheme.expense),
-            const SizedBox(width: 14),
-            const Text(
-              'LOGOUT ACCOUNT',
-              style: TextStyle(
-                color: AppTheme.expense,
-                fontWeight: FontWeight.w900,
-                fontSize: 14,
                 letterSpacing: 1,
               ),
             ),

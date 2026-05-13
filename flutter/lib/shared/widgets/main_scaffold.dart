@@ -9,15 +9,17 @@ class MainScaffold extends StatelessWidget {
 
   int _getCurrentIndex() {
     final location = getx.Get.currentRoute;
-    if (location.startsWith('/transactions')) return 1;
-    if (location.startsWith('/profile'))      return 3;
-    if (location.startsWith('/setting'))      return 4;
+    if (location.startsWith('/summary'))      return 1;
+    if (location.startsWith('/transactions')) return 3;
+    if (location.startsWith('/profile') || location.startsWith('/preferences')) return 4;
     return 0;
   }
 
   @override
   Widget build(BuildContext context) {
     final currentIndex = _getCurrentIndex();
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: child,
@@ -26,18 +28,18 @@ class MainScaffold extends StatelessWidget {
         onPressed: () => getx.Get.toNamed('/transactions/add'),
         backgroundColor: AppTheme.primary,
         shape: const CircleBorder(),
-        elevation: 4,
-        child: Icon(Icons.add_rounded, color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white, size: 32),
+        elevation: 10,
+        child: Icon(Icons.add_rounded, color: isDark ? Colors.black : Colors.white, size: 32),
       ),
       bottomNavigationBar: BottomAppBar(
         padding: EdgeInsets.zero,
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: colorScheme.surface,
         shape: const CircularNotchedRectangle(),
         notchMargin: 8,
         child: Container(
           height: 80,
           decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05), width: 1)),
+            border: Border(top: BorderSide(color: colorScheme.onSurface.withOpacity(0.05), width: 1)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -51,29 +53,29 @@ class MainScaffold extends StatelessWidget {
                 onTap: () => getx.Get.offNamed('/dashboard'),
               ),
               _NavItem(
+                icon: Icons.analytics_outlined, 
+                activeIcon: Icons.analytics_rounded,
+                label: 'SUMMARY', 
+                index: 1, 
+                current: currentIndex,
+                onTap: () => getx.Get.offNamed('/summary'),
+              ),
+              const SizedBox(width: 48), // Spacer for FAB
+              _NavItem(
                 icon: Icons.receipt_long_outlined, 
                 activeIcon: Icons.receipt_long_rounded,
-                label: 'TRANSAKSI', 
-                index: 1, 
+                label: 'HISTORY', 
+                index: 3, 
                 current: currentIndex,
                 onTap: () => getx.Get.offNamed('/transactions'),
               ),
-              const SizedBox(width: 48), // Spacer for FAB
               _NavItem(
                 icon: Icons.person_outline_rounded, 
                 activeIcon: Icons.person_rounded,
                 label: 'PROFILE', 
-                index: 3, 
-                current: currentIndex,
-                onTap: () => getx.Get.offNamed('/profile'),
-              ),
-              _NavItem(
-                icon: Icons.settings_outlined, 
-                activeIcon: Icons.settings_rounded,
-                label: 'SETTING', 
                 index: 4, 
                 current: currentIndex,
-                onTap: () => getx.Get.offNamed('/setting'),
+                onTap: () => getx.Get.offNamed('/profile'),
               ),
             ],
           ),
@@ -93,25 +95,29 @@ class _NavItem extends StatelessWidget {
   bool get isActive => index == current;
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    behavior: HitTestBehavior.opaque,
-    child: AnimatedOpacity(
-      duration: const Duration(milliseconds: 200),
-      opacity:  isActive ? 1.0 : 0.4,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(isActive ? activeIcon : icon, color: isActive ? AppTheme.primary : Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 24),
-          const SizedBox(height: 6),
-          Text(label, style: TextStyle(
-            fontSize:   9,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1,
-            color:      isActive ? AppTheme.primary : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-          )),
-        ],
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity:  isActive ? 1.0 : 0.4,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(isActive ? activeIcon : icon, color: isActive ? AppTheme.primary : colorScheme.onSurface, size: 24),
+            const SizedBox(height: 6),
+            Text(label, style: TextStyle(
+              fontSize:   9,
+              fontFamily: 'Space Grotesk',
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1,
+              color:      isActive ? AppTheme.primary : colorScheme.onSurface,
+            )),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

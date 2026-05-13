@@ -21,6 +21,20 @@ class TransactionEntity {
     required this.createdAt,
   });
 
+  factory TransactionEntity.fromJson(Map<String, dynamic> json) {
+    final cat = json['category'];
+    return TransactionEntity(
+      id:        json['id']     as int,
+      title:     json['title']  as String,
+      amount:    (json['amount'] as num).toDouble(),
+      type:      json['type']   as String,
+      date:      DateTime.parse(json['date'] as String),
+      note:      json['note']   as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      category:  cat != null ? CategoryEntity.fromJson(cat as Map<String, dynamic>) : null,
+    );
+  }
+
   bool get isIncome  => type == 'income';
   bool get isExpense => type == 'expense';
 }
@@ -39,6 +53,16 @@ class CategoryEntity {
     required this.color,
     required this.type,
   });
+
+  factory CategoryEntity.fromJson(Map<String, dynamic> json) {
+    return CategoryEntity(
+      id:    json['id']    as int,
+      name:  json['name']  as String,
+      icon:  json['icon']  as String,
+      color: json['color'] as String,
+      type:  json['type']  ?? 'both',
+    );
+  }
 }
 
 class UserEntity {
@@ -47,6 +71,7 @@ class UserEntity {
   final String  email;
   final String? photoUrl;
   final DateTime createdAt;
+  final bool     isVerified;
 
   const UserEntity({
     required this.id,
@@ -54,6 +79,7 @@ class UserEntity {
     required this.email,
     this.photoUrl,
     required this.createdAt,
+    this.isVerified = false,
   });
 }
 

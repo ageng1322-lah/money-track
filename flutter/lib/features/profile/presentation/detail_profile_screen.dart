@@ -131,6 +131,8 @@ class _DetailProfileScreenState extends ConsumerState<DetailProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).valueOrNull;
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     
     String initial = '?';
     if (user != null && user.name.isNotEmpty) {
@@ -138,97 +140,114 @@ class _DetailProfileScreenState extends ConsumerState<DetailProfileScreen> {
     }
 
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('PERSONAL INFO'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+          onPressed: () => Get.back(),
+        ),
+        title: Text('Edit Profile', style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 20)),
       ),
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             child: Form(
               key: _formKey,
               child: Column(
                 children: [
+                  // Avatar Section
                   FadeInAnimation(
                     delay: const Duration(milliseconds: 100),
-                    child: Center(
-                      child: Stack(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: AppTheme.primary.withOpacity(0.5), width: 2),
-                            ),
-                            child: CircleAvatar(
-                              radius: 60,
-                              backgroundColor: Theme.of(context).colorScheme.surface,
-                              backgroundImage: (user?.photoUrl != null && user!.photoUrl!.isNotEmpty) ? NetworkImage(user!.photoUrl!) : null,
-                              child: (user?.photoUrl == null || user!.photoUrl!.isEmpty)
-                                  ? Text(initial, 
-                                      style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: AppTheme.primary, fontStyle: FontStyle.italic))
-                                  : null,
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: _pickImage,
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
+                    child: Column(
+                      children: [
+                        Center(
+                          child: Stack(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(4),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.primary,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 4),
+                                  border: Border.all(color: AppTheme.primary, width: 2),
                                   boxShadow: [
-                                    BoxShadow(color: AppTheme.primary.withOpacity(0.3), blurRadius: 10, spreadRadius: 2),
+                                    BoxShadow(
+                                      color: AppTheme.primary.withOpacity(0.3),
+                                      blurRadius: 20,
+                                      spreadRadius: 2,
+                                    ),
                                   ],
                                 ),
-                                child: Icon(Icons.camera_alt_rounded, color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white, size: 20),
+                                child: CircleAvatar(
+                                  radius: 60,
+                                  backgroundColor: colorScheme.surfaceVariant,
+                                  backgroundImage: (user?.photoUrl != null && user!.photoUrl!.isNotEmpty) ? NetworkImage(user!.photoUrl!) : null,
+                                  child: (user?.photoUrl == null || user!.photoUrl!.isEmpty)
+                                      ? Text(initial, style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: AppTheme.primary))
+                                      : null,
+                                ),
                               ),
+                              Positioned(
+                                bottom: 5,
+                                right: 5,
+                                child: GestureDetector(
+                                  onTap: _pickImage,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: const BoxDecoration(
+                                      color: AppTheme.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(Icons.camera_alt, color: isDark ? Colors.black : Colors.white, size: 20),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: const Text(
+                            'UPDATE AVATAR',
+                            style: TextStyle(
+                              color: AppTheme.primary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  if (user?.photoUrl != null && user!.photoUrl!.isNotEmpty)
-                    TextButton.icon(
-                      onPressed: _deletePhoto,
-                      icon: const Icon(Icons.delete_outline_rounded, size: 16, color: AppTheme.expense),
-                      label: const Text('REMOVE PHOTO', 
-                        style: TextStyle(color: AppTheme.expense, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
-                    ),
                   
                   const SizedBox(height: 48),
+
+                  // Form Fields
                   FadeInAnimation(
                     delay: const Duration(milliseconds: 200),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('FULL NAME', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                        Text('FULL NAME', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
                         const SizedBox(height: 12),
-                        TextFormField(
+                        _buildTextField(
+                          context: context,
                           controller: _nameController,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                          decoration: InputDecoration(
-                            hintText: 'Enter your name',
-                            prefixIcon: Icon(Icons.person_outline_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          ),
+                          icon: Icons.person_outline,
+                          hint: 'Alexander Vance',
                           validator: (v) => v!.isEmpty ? 'Name cannot be empty' : null,
                         ),
                         const SizedBox(height: 24),
-                        Text('EMAIL ADDRESS', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
+                        Text('EMAIL ADDRESS', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1)),
                         const SizedBox(height: 12),
-                        TextFormField(
+                        _buildTextField(
+                          context: context,
                           controller: _emailController,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                          decoration: InputDecoration(
-                            hintText: 'Enter your email',
-                            prefixIcon: Icon(Icons.email_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          ),
+                          icon: Icons.mail_outline,
+                          hint: 'alex.vance@neotrack.io',
                           validator: (v) => v!.isEmpty ? 'Email cannot be empty' : null,
                         ),
                       ],
@@ -237,21 +256,42 @@ class _DetailProfileScreenState extends ConsumerState<DetailProfileScreen> {
                   
                   const SizedBox(height: 60),
 
+                  // Action Buttons
                   FadeInAnimation(
                     delay: const Duration(milliseconds: 300),
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _save,
-                      child: _isSaving 
-                        ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 3, color: Theme.of(context).colorScheme.onPrimary))
-                        : const Text('SAVE CHANGES'),
+                    child: Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: _isSaving ? null : _save,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primary,
+                            foregroundColor: isDark ? Colors.black : Colors.white,
+                            minimumSize: const Size(double.infinity, 60),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            elevation: isDark ? 10 : 2,
+                            shadowColor: AppTheme.primary.withOpacity(0.3),
+                          ),
+                          child: _isSaving 
+                            ? SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 3, color: isDark ? Colors.black : Colors.white))
+                            : const Text('Save Changes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(height: 32),
+                        GestureDetector(
+                          onTap: () => Get.back(),
+                          child: Text(
+                            'CANCEL UPDATE',
+                            style: TextStyle(
+                              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () => Get.back(),
-                    style: TextButton.styleFrom(minimumSize: const Size(double.infinity, 56)),
-                    child: Text('DISCARD', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
-                  ),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -266,6 +306,47 @@ class _DetailProfileScreenState extends ConsumerState<DetailProfileScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required BuildContext context,
+    required TextEditingController controller,
+    required IconData icon,
+    required String hint,
+    String? Function(String?)? validator,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0D1416) : colorScheme.surfaceVariant,
+        gradient: RadialGradient(
+          colors: [AppTheme.primary.withOpacity(0.08), Colors.transparent],
+          center: const Alignment(1.5, -1.5),
+          radius: 2.2,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.primary.withOpacity(0.12)),
+      ),
+      child: TextFormField(
+        controller: controller,
+        validator: validator,
+        style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          filled: false,
+          hintText: hint,
+          hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+          prefixIcon: Icon(icon, color: colorScheme.onSurfaceVariant, size: 20),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        ),
       ),
     );
   }

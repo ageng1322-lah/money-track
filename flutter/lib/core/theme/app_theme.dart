@@ -11,10 +11,10 @@ class AppTheme {
   
   // Dark Theme Colors
   static const Color darkBackground = Color(0xFF000000);
-  static const Color darkSurface    = Color(0xFF111111);
-  static const Color darkCard       = Color(0xFF1A1A1A);
+  static const Color darkSurface    = Color(0xFF080808);
+  static const Color darkCard       = Color(0xFF0C0C0C);
   static const Color darkTextMain   = Colors.white;
-  static const Color darkTextDim    = Color(0xFF64748B);
+  static const Color darkTextDim    = Color(0xFFA1A1AA);
 
   // Light Theme Colors
   static const Color lightBackground = Color(0xFFF8FAFC); // Slate 50
@@ -78,11 +78,11 @@ class AppTheme {
         onSurfaceVariant: txtDim,
         outline: isDark ? Colors.white10 : Colors.black12,
       ),
-      textTheme: GoogleFonts.interTextTheme(
+      textTheme: GoogleFonts.spaceGroteskTextTheme(
         TextTheme(
-          headlineLarge: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w800, color: txt),
-          headlineMedium: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w700, color: txt),
-          titleLarge: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.w600, color: txt),
+          headlineLarge: TextStyle(fontWeight: FontWeight.w800, color: txt),
+          headlineMedium: TextStyle(fontWeight: FontWeight.w700, color: txt),
+          titleLarge: TextStyle(fontWeight: FontWeight.w600, color: txt),
           bodyLarge: TextStyle(color: txt),
           bodyMedium: TextStyle(color: txt),
         ),
@@ -95,8 +95,7 @@ class AppTheme {
         foregroundColor: txt,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: TextStyle(
-          fontFamily: 'Outfit',
+        titleTextStyle: GoogleFonts.spaceGrotesk(
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: txt,
@@ -140,7 +139,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: primary, width: 2),
         ),
-        labelStyle: TextStyle(color: txtDim, fontWeight: FontWeight.bold, fontSize: 12),
+        labelStyle: GoogleFonts.spaceGrotesk(color: txtDim, fontWeight: FontWeight.bold, fontSize: 12),
         hintStyle: TextStyle(color: isDark ? Colors.white24 : Colors.black26, fontSize: 14),
         contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       ),

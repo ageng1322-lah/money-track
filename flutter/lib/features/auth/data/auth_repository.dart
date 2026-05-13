@@ -62,11 +62,24 @@ class AuthRepository {
     return token != null && token.isNotEmpty;
   }
 
+  Future<UserEntity> verifyOtp(String email, String otp) async {
+    final res = await _dio.post('verify-otp', data: {
+      'email': email,
+      'otp':   otp,
+    });
+    return _mapUser(res.data['user']);
+  }
+
+  Future<void> resendOtp(String email) async {
+    await _dio.post('resend-otp', data: {'email': email});
+  }
+
   UserEntity _mapUser(Map<String, dynamic> json) => UserEntity(
     id:        json['id']         as int,
     name:      json['name']       as String,
     email:     json['email']      as String,
     photoUrl:  json['photo_url']  as String?,
     createdAt: DateTime.parse(json['created_at'] as String),
+    isVerified: json['email_verified_at'] != null,
   );
 }

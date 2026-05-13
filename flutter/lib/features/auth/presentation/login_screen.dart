@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart' as getx;
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/providers/providers.dart';
 import '../../../shared/widgets/animations.dart';
@@ -53,125 +54,220 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final loading = ref.watch(authProvider).isLoading;
+    const neonGreen = Color(0xFF00FFA3);
+    const darkBg = Color(0xFF000000);
+    const cardBg = Color(0xFF0D1416);
 
     return Scaffold(
+      backgroundColor: darkBg,
       body: Stack(
         children: [
-          // Background Decoration
+          // Background Glows
           Positioned(
-            top: -100, right: -100,
-            child: Container(width: 300, height: 300, decoration: BoxDecoration(color: AppTheme.primary.withOpacity(0.05), borderRadius: BorderRadius.circular(150))),
+            top: -100, right: -50,
+            child: Container(
+              width: 300, height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [neonGreen.withOpacity(0.1), Colors.transparent],
+                ),
+              ),
+            ),
           ),
-          
+          Positioned(
+            bottom: -100, left: -100,
+            child: Container(
+              width: 400, height: 400,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [neonGreen.withOpacity(0.05), Colors.transparent],
+                ),
+              ),
+            ),
+          ),
+
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 60),
-
+                    const SizedBox(height: 40),
                     // Logo
                     FadeInAnimation(
                       delay: const Duration(milliseconds: 100),
                       child: Container(
-                        width: 64, height: 64,
+                        width: 80, height: 80,
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [BoxShadow(color: AppTheme.primary.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 8))],
+                          color: const Color(0xFF1C2529),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white.withOpacity(0.05)),
                         ),
-                        child: Icon(Icons.account_balance_wallet_rounded, color: Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white, size: 32),
+                        child: Center(
+                          child: Icon(Icons.account_balance_wallet_rounded, color: neonGreen, size: 40),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
+                    // Header
                     FadeInAnimation(
                       delay: const Duration(milliseconds: 200),
-                      child: Text('WELCOME BACK', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 2)),
-                    ),
-                    const SizedBox(height: 8),
-                    const FadeInAnimation(
-                      delay: Duration(milliseconds: 300),
-                      child: Text('MoneyTrack.', style: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, fontFamily: 'Outfit', fontStyle: FontStyle.italic)),
-                    ),
-                    const SizedBox(height: 12),
-                    FadeInAnimation(
-                      delay: const Duration(milliseconds: 400),
-                      child: Text('Manage your future wealth today.', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 15, fontWeight: FontWeight.w500)),
-                    ),
-                    const SizedBox(height: 56),
-
-                    if (_error != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppTheme.expense.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppTheme.expense.withOpacity(0.2)),
-                        ),
-                        child: Text(_error!, style: const TextStyle(color: AppTheme.expense, fontSize: 13, fontWeight: FontWeight.bold)),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-
-                    FadeInAnimation(
-                      delay: const Duration(milliseconds: 500),
-                      child: TextFormField(
-                        controller: _emailCtrl,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          labelText: 'EMAIL ADDRESS',
-                          hintText: 'name@domain.com',
-                        ),
-                        validator: (v) => (v == null || !v.contains('@')) ? 'Invalid email' : null,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    FadeInAnimation(
-                      delay: const Duration(milliseconds: 600),
-                      child: TextFormField(
-                        controller: _passCtrl,
-                        obscureText: _obscure,
-                        decoration: InputDecoration(
-                          labelText: 'PASSWORD',
-                          hintText: '••••••••',
-                          suffixIcon: IconButton(
-                            icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
-                            onPressed: () => setState(() => _obscure = !_obscure),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Welcome\nBack',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.spaceGrotesk(
+                              color: Colors.white,
+                              fontSize: 42,
+                              fontWeight: FontWeight.w900,
+                              height: 1.1,
+                            ),
                           ),
-                        ),
-                        validator: (v) => (v == null || v.length < 8) ? 'Min 8 characters' : null,
+                          const SizedBox(height: 16),
+                          Text(
+                            'Access your secure financial\ncommand center',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.spaceGrotesk(
+                              color: Colors.white.withOpacity(0.5),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 48),
 
-                    FadeInAnimation(
-                      delay: const Duration(milliseconds: 700),
-                      child: ElevatedButton(
-                        onPressed: loading ? null : _submit,
-                        child: loading
-                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 3))
-                            : const Text('SIGN IN NOW'),
+                    if (_error != null) ...[
+                      FadeInAnimation(
+                        delay: Duration.zero,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.red.withOpacity(0.2)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline, color: Colors.redAccent, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(child: Text(_error!, style: const TextStyle(color: Colors.redAccent, fontSize: 13, fontWeight: FontWeight.bold))),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 32),
+                      const SizedBox(height: 24),
+                    ],
 
-                    Center(
-                      child: GestureDetector(
-                        onTap: () => getx.Get.toNamed('/register'),
-                        child: RichText(text: TextSpan(
-                          text: "New here? ",
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 14, fontWeight: FontWeight.w600),
-                          children: const [TextSpan(
-                            text: 'Create account',
-                            style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w900),
-                          )],
-                        )),
+                    // Card Container
+                    FadeInAnimation(
+                      delay: const Duration(milliseconds: 300),
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: cardBg,
+                          gradient: RadialGradient(
+                            colors: [neonGreen.withOpacity(0.1), Colors.transparent],
+                            center: const Alignment(1.5, -1.5),
+                            radius: 1.5,
+                          ),
+                          borderRadius: BorderRadius.circular(32),
+                          border: Border.all(color: neonGreen.withOpacity(0.12)),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 40, offset: const Offset(0, 20)),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildFieldLabel('Email Address'),
+                            _buildTextField(
+                              controller: _emailCtrl,
+                              hint: 'name@neotrack.com',
+                              icon: Icons.email_outlined,
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                            const SizedBox(height: 24),
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _buildFieldLabel('Password'),
+                                Text(
+                                  'Forgot Password?',
+                                  style: GoogleFonts.spaceGrotesk(color: neonGreen.withOpacity(0.8), fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            _buildTextField(
+                              controller: _passCtrl,
+                              hint: '••••••••',
+                              icon: Icons.lock_outline,
+                              isPassword: true,
+                              obscureText: _obscure,
+                              onToggleObscure: () => setState(() => _obscure = !_obscure),
+                            ),
+                            const SizedBox(height: 32),
+
+                            // Submit Button
+                            Container(
+                              width: double.infinity,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                boxShadow: [
+                                  BoxShadow(color: neonGreen.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 8)),
+                                ],
+                              ),
+                              child: ElevatedButton(
+                                onPressed: loading ? null : _submit,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: neonGreen,
+                                  foregroundColor: Colors.black,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                  elevation: 0,
+                                ),
+                                child: loading
+                                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 3))
+                                    : Text('SIGN IN', style: GoogleFonts.spaceGrotesk(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 48),
+
+                    // Footer
+                    FadeInAnimation(
+                      delay: const Duration(milliseconds: 400),
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () => getx.Get.toNamed('/register'),
+                          child: RichText(
+                            text: TextSpan(
+                              text: "Don't have an account? ",
+                              style: GoogleFonts.spaceGrotesk(color: Colors.white.withOpacity(0.6), fontSize: 15, fontWeight: FontWeight.w500),
+                              children: [
+                                TextSpan(
+                                  text: 'Sign Up',
+                                  style: GoogleFonts.spaceGrotesk(color: neonGreen, fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -179,6 +275,60 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildFieldLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        label,
+        style: GoogleFonts.spaceGrotesk(color: Colors.white.withOpacity(0.8), fontSize: 13, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    bool isPassword = false,
+    bool obscureText = false,
+    VoidCallback? onToggleObscure,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      style: GoogleFonts.spaceGrotesk(color: Colors.white, fontSize: 15),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.white.withOpacity(0.2)),
+        prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.4), size: 20),
+        suffixIcon: isPassword && onToggleObscure != null
+            ? IconButton(
+                icon: Icon(
+                  obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  color: Colors.white.withOpacity(0.4),
+                  size: 20,
+                ),
+                onPressed: onToggleObscure,
+              )
+            : null,
+        filled: true,
+        fillColor: const Color(0xFF121B1E),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.white.withOpacity(0.05))),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF00FFA3), width: 1)),
+      ),
+      validator: (v) {
+        if (v == null || v.isEmpty) return 'Required';
+        if (keyboardType == TextInputType.emailAddress && !v.contains('@')) return 'Invalid email';
+        if (isPassword && v.length < 8) return 'Min 8 characters';
+        return null;
+      },
     );
   }
 }

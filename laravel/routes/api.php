@@ -16,14 +16,19 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::prefix('v1')->group(function () {
 
+    // Test route
+    Route::get('ping', function () {
+        return response()->json(['message' => 'pong', 'time' => now()]);
+    });
+
     // Authentication
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login',    [AuthController::class, 'login']);
+    Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
+    Route::post('resend-otp', [AuthController::class, 'resendOtp']);
 
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
-
-        // Auth
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me',      [AuthController::class, 'me']);
 
@@ -47,9 +52,9 @@ Route::prefix('v1')->group(function () {
         Route::prefix('profile')->group(function () {
             Route::get('/',        [ProfileController::class, 'show']);
             Route::put('/',        [ProfileController::class, 'update']);
-            Route::put('/password',[ProfileController::class, 'updatePassword']);
+            Route::put('/password', [ProfileController::class, 'updatePassword']);
             Route::post('/photo',  [ProfileController::class, 'updatePhoto']);
-            Route::delete('/photo',[ProfileController::class, 'deletePhoto']);
+            Route::delete('/photo', [ProfileController::class, 'deletePhoto']);
         });
     });
 });

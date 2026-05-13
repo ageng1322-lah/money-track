@@ -1,5 +1,5 @@
 // lib/shared/providers/providers.dart
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/network/api_client.dart';
@@ -53,7 +53,12 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
     if (!hasToken) return null;
     
     try {
-      return await _repo.getMe();
+      final user = await _repo.getMe();
+      // Sync with GetX for middleware
+      if (getx.Get.isRegistered<AuthController>()) {
+        getx.Get.find<AuthController>().user.value = user;
+      }
+      return user;
     } catch (e) {
       return null;
     }
@@ -89,25 +94,81 @@ class AuthNotifier extends AsyncNotifier<UserEntity?> {
   }
 
   Future<void> logout() async {
-    await _repo.logout();
+    try {
+      await _repo.logout();
+    } catch (_) {}
+    
     // Sync with GetX
     if (getx.Get.isRegistered<AuthController>()) {
       getx.Get.find<AuthController>().user.value = null;
     }
+    
+    // Setting state to null will automatically trigger rebuilds in 
+    // all providers that watch(authProvider)
     state = const AsyncValue.data(null);
     getx.Get.offAllNamed('/login');
+  }
+
+  Future<void> verifyOtp(String otp) async {
+    final email = state.value?.email;
+    if (email == null) return;
+    
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final user = await _repo.verifyOtp(email, otp);
+      if (getx.Get.isRegistered<AuthController>()) {
+        getx.Get.find<AuthController>().user.value = user;
+      }
+      return user;
+    });
+  }
+
+  Future<void> resendOtp() async {
+    final email = state.value?.email;
+    if (email == null) return;
+    await _repo.resendOtp(email);
+  }
+}
+
+// Profile Provider
+final profileProvider = AsyncNotifierProvider<ProfileNotifier, UserEntity?>(() {
+  return ProfileNotifier();
+});
+
+class ProfileNotifier extends AsyncNotifier<UserEntity?> {
+  late ProfileRepository _repo;
+
+  @override
+  Future<UserEntity?> build() async {
+    _repo = ref.watch(profileRepositoryProvider);
+    return ref.watch(authProvider).valueOrNull;
+  }
+
+  Future<void> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await _repo.updatePassword(
+      currentPassword: currentPassword,
+      newPassword:     newPassword,
+    );
   }
 }
 
 // Category Provider
 final categoriesProvider = FutureProvider.autoDispose<List<CategoryEntity>>((ref) async {
+  ref.watch(authProvider);
   return ref.watch(categoryRepositoryProvider).getCategories();
 });
 
 // Transaction List Provider
-final transactionListProvider = FutureProvider.autoDispose<PaginatedTransactions>((ref) async {
+final transactionListProvider = FutureProvider<PaginatedTransactions>((ref) async {
+  ref.watch(authProvider);
   final filter = ref.watch(transactionFilterProvider);
   final repo   = ref.read(transactionRepositoryProvider);
+  
+  final link = ref.keepAlive();
+
   return repo.getTransactions(
     type:       filter.type,
     categoryId: filter.categoryId,
@@ -176,9 +237,11 @@ final dashboardProvider = AsyncNotifierProvider<DashboardNotifier, Map<String, d
 class DashboardNotifier extends AsyncNotifier<Map<String, dynamic>> {
   @override
   Future<Map<String, dynamic>> build() async {
+    ref.watch(authProvider);
     final date = ref.watch(dashboardDateProvider);
     final dio  = ref.watch(apiClientProvider).dio;
     
+
     final res = await dio.get('dashboard', queryParameters: {
       'month': date.month,
       'year':  date.year,
@@ -204,3 +267,6 @@ class DashboardNotifier extends AsyncNotifier<Map<String, dynamic>> {
 final themeModeProvider = StateProvider<ThemeMode>((ref) {
   return ThemeMode.dark; // Default to dark as requested previously
 });
+
+// Deleted Transaction Tracker (for Optimistic UI)
+final deletedTransactionIdsProvider = StateProvider<Set<int>>((ref) => {});
