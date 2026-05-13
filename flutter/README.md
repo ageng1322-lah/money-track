@@ -1,4 +1,4 @@
-# fintrack
+# MoneyTrack
 
 A new Flutter project.
 

@@ -1,5 +1,5 @@
 // lib/features/profile/presentation/security_screen.dart
-import 'package:fintrack/core/theme/app_theme.dart';
+import 'package:moneytrack/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';

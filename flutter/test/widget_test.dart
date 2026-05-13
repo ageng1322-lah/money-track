@@ -6,16 +6,16 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fintrack/main.dart';
+import 'package:moneytrack/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const FinTrackApp());
+    await tester.pumpWidget(const MoneyTrackApp());
 
     // Verify that our counter starts at 0.
-    // Note: This default test doesn't match FinTrack logic, 
+    // Note: This default test doesn't match MoneyTrack logic, 
     // but we keep it here to ensure the project compiles.
-    expect(find.byType(FinTrackApp), findsOneWidget);
+    expect(find.byType(MoneyTrackApp), findsOneWidget);
   });
 }

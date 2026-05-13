@@ -1,6 +1,6 @@
 {
-    "name": "fintrack",
-    "short_name": "fintrack",
+    "name": "MoneyTrack",
+    "short_name": "MoneyTrack",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

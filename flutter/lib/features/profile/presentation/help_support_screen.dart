@@ -1,4 +1,4 @@
-import 'package:fintrack/core/theme/app_theme.dart';
+import 'package:moneytrack/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' as getx;
 import 'package:url_launcher/url_launcher.dart';

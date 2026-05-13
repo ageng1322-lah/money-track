@@ -3,10 +3,10 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appName = 'FinTrack';
+  static const String appName = 'MoneyTrack';
 
   // API
-  static const String baseUrl    = 'http://172.18.20.125:8000/api/v1/';
+  static const String baseUrl    = 'http://172.18.20.212:8000/api/v1/';
   static const int    connectTimeout = 30;
   static const int    receiveTimeout = 30;
 

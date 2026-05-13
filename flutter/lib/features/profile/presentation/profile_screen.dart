@@ -1,5 +1,5 @@
 // lib/features/profile/presentation/profile_screen.dart
-import 'package:fintrack/shared/widgets/animations.dart';
+import 'package:moneytrack/shared/widgets/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';

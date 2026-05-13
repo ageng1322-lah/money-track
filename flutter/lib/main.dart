@@ -1,5 +1,5 @@
 // lib/main.dart
-import 'package:fintrack/shared/providers/providers.dart';
+import 'package:moneytrack/shared/providers/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -24,20 +24,20 @@ void main() async {
 
   runApp(
     const ProviderScope(
-      child: FinTrackApp(),
+      child: MoneyTrackApp(),
     ),
   );
 }
 
-class FinTrackApp extends ConsumerWidget {
-  const FinTrackApp({super.key});
+class MoneyTrackApp extends ConsumerWidget {
+  const MoneyTrackApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
 
     return GetMaterialApp(
-      title:              'FinTrack',
+      title:              'MoneyTrack',
       debugShowCheckedModeBanner: false,
       theme:              AppTheme.light,
       darkTheme:          AppTheme.dark,
