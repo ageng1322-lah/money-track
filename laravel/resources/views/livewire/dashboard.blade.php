@@ -162,7 +162,7 @@
                             tooltip: {
                                 backgroundColor: document.body.classList.contains('light-mode') ? '#ffffff' : '#111111',
                                 titleFont: { family: 'Outfit', size: 14 },
-                                bodyFont: { family: 'Inter', size: 12 },
+                                bodyFont: { family: 'Space Grotesk', size: 12 },
                                 padding: 12,
                                 cornerRadius: 12,
                                 borderColor: document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
@@ -176,7 +176,7 @@
                                 grid: { display: false },
                                 ticks: { 
                                     color: document.body.classList.contains('light-mode') ? 'rgba(15,23,42,0.4)' : 'rgba(255,255,255,0.2)', 
-                                    font: { family: 'Inter', weight: 'bold', size: 10 } 
+                                    font: { family: 'Space Grotesk', weight: 'bold', size: 10 } 
                                 }
                             },
                             y: {
@@ -187,7 +187,7 @@
                                 border: { display: false },
                                 ticks: { 
                                     color: document.body.classList.contains('light-mode') ? 'rgba(15,23,42,0.4)' : 'rgba(255,255,255,0.2)', 
-                                    font: { family: 'Inter', weight: 'bold', size: 10 },
+                                    font: { family: 'Space Grotesk', weight: 'bold', size: 10 },
                                     callback: v => v >= 1000000 ? (v/1000000)+'M' : (v >= 1000 ? (v/1000)+'K' : v)
                                 }
                             }

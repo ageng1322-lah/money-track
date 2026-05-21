@@ -100,6 +100,6 @@ class TransactionController extends Controller
             filters: $request->only('from', 'to', 'type', 'category_id'),
         );
 
-        return $pdf->download('fintrack-laporan-' . now()->format('Y-m-d') . '.pdf');
+        return $pdf->download('moneytrack-laporan-' . now()->format('Y-m-d') . '.pdf');
     }
 }

@@ -191,7 +191,7 @@ class _BalanceCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('SUMBER PEMASUKAN UTAMA', style: GoogleFonts.spaceGrotesk(color: AppTheme.primary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                    Text('SUMBER PEMASUKAN TERBESAR', style: GoogleFonts.spaceGrotesk(color: AppTheme.primary, fontSize: 9, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
                     const SizedBox(height: 2),
                     Text(largestIncomeSource, style: GoogleFonts.spaceGrotesk(color: colorScheme.onSurface, fontSize: 13, fontWeight: FontWeight.bold)),
                   ],

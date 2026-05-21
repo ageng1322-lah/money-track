@@ -43,7 +43,7 @@ class AuthController extends Controller
         // Seed default categories for new user
         $this->seedDefaultCategories($user->id);
 
-        $token = $user->createToken('fintrack-mobile')->plainTextToken;
+        $token = $user->createToken('moneytrack-mobile')->plainTextToken;
 
         return response()->json([
             'message' => 'Registrasi berhasil. Silakan verifikasi kode OTP yang dikirim ke email Anda.',
@@ -125,7 +125,7 @@ class AuthController extends Controller
         }
 
         $user  = Auth::user();
-        $token = $user->createToken('fintrack-mobile')->plainTextToken;
+        $token = $user->createToken('moneytrack-mobile')->plainTextToken;
 
         return response()->json([
             'message' => 'Login berhasil.',

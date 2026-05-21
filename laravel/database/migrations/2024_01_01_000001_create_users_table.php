@@ -12,8 +12,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('role')->default('user');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('otp_code', 4)->nullable();
+            $table->timestamp('otp_expires_at')->nullable();
             $table->string('photo')->nullable();
             $table->rememberToken();
             $table->timestamps();

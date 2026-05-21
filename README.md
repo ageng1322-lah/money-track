@@ -1,4 +1,4 @@
-# FinTrack — Aplikasi Pencatatan Keuangan Pribadi
+# MoneyTrack — Aplikasi Pencatatan Keuangan Pribadi
 
 Aplikasi pencatatan keuangan modern dengan arsitektur **Laravel 11 + Livewire 3** (backend & web), **Flutter** (mobile), dan **MySQL** (database).
 
@@ -7,7 +7,7 @@ Aplikasi pencatatan keuangan modern dengan arsitektur **Laravel 11 + Livewire 3*
 ## 🏗️ Arsitektur
 
 ```
-fintrack/
+MoneyTrack/
 ├── laravel/     ← Backend API + Livewire Web Dashboard
 └── flutter/     ← Mobile App (iOS & Android)
 ```
@@ -28,7 +28,7 @@ php artisan key:generate
 ### 2. Konfigurasi `.env`
 
 ```env
-DB_DATABASE=fintrack
+DB_DATABASE=MoneyTrack
 DB_USERNAME=root
 DB_PASSWORD=your_password
 
@@ -41,7 +41,7 @@ QUEUE_CONNECTION=redis
 ```bash
 php artisan migrate
 php artisan db:seed
-# Demo: budi@fintrack.id / password123
+# Demo: budi@MoneyTrack.id / password123
 ```
 
 ### 4. Storage & Sanctum
@@ -112,7 +112,7 @@ flutter run
 ```bash
 curl -X POST http://localhost:8000/api/v1/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"budi@fintrack.id","password":"password123"}'
+  -d '{"email":"budi@MoneyTrack.id","password":"password123"}'
 ```
 
 ### Contoh Response Dashboard
@@ -266,4 +266,4 @@ lib/
 
 ---
 
-*FinTrack v1.0 — Built with Laravel 11 + Flutter 3*
+*MoneyTrack v1.0 — Built with Laravel 11 + Flutter 3*

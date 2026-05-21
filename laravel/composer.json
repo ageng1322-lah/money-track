@@ -1,7 +1,7 @@
 {
-    "name": "fintrack/api",
-    "description": "FinTrack Personal Finance API — Laravel + Livewire",
-    "keywords": ["framework", "laravel", "fintrack"],
+    "name": "MoneyTrack/api",
+    "description": "MoneyTrack Personal Finance API — Laravel + Livewire",
+    "keywords": ["framework", "laravel", "MoneyTrack"],
     "license": "MIT",
     "require": {
         "php": "^8.2",

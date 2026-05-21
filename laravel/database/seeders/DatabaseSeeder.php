@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
         // Demo user
         $user = User::create([
             'name'     => 'Budi Santoso',
-            'email'    => 'budi@fintrack.id',
+            'email'    => 'budi@MoneyTrack.id',
             'password' => Hash::make('password123'),
         ]);
 
@@ -66,6 +66,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        $this->command->info("✅ Demo user: budi@fintrack.id / password123");
+        $this->command->info("✅ Demo user: budi@MoneyTrack.id / password123");
     }
 }

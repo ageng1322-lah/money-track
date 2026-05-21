@@ -1,6 +1,6 @@
 <?php return array(
     'root' => array(
-        'name' => 'fintrack/api',
+        'name' => 'MoneyTrack/api',
         'pretty_version' => '1.0.0+no-version-set',
         'version' => '1.0.0.0',
         'reference' => null,
@@ -148,7 +148,7 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
-        'fintrack/api' => array(
+        'MoneyTrack/api' => array(
             'pretty_version' => '1.0.0+no-version-set',
             'version' => '1.0.0.0',
             'reference' => null,

@@ -9,7 +9,7 @@
     <!-- Google Fonts: Inter & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
@@ -36,8 +36,8 @@
             --glass: rgba(0, 0, 0, 0.02);
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-black); color: var(--text-white); transition: background-color 0.3s, color 0.3s; }
-        .font-outfit { font-family: 'Outfit', sans-serif; }
+        body { font-family: 'Space Grotesk', sans-serif; background-color: var(--bg-black); color: var(--text-white); transition: background-color 0.3s, color 0.3s; }
+        .font-outfit { font-family: 'Space Grotesk', sans-serif; }
         .glass { background: var(--glass); backdrop-filter: blur(10px); }
         
         /* Overrides for hardcoded classes to support light mode */
