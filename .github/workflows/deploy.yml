@@ -34,7 +34,7 @@ jobs:
         port: 21
         protocol: ftp
         local-dir: ./laravel/ # Folder lokal yang mau di-upload
-        server-dir: /public_html/ # Sesuaikan dengan folder target di hosting Anda
+        server-dir: / # Sesuaikan dengan folder target di hosting Anda
         exclude: |
           **/.git*
           **/.git*/**
