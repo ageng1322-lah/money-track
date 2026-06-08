@@ -133,11 +133,15 @@
                 </p>
                 
                 <div class="flex flex-wrap justify-center lg:justify-start gap-4">
-                    <a href="{{ route('register') }}" class="h-16 px-10 bg-brand-500 hover:bg-brand-400 text-black rounded-2xl flex items-center justify-center font-black text-sm uppercase tracking-widest transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-brand-500/20">
-                        Get Started Now
+                    <a href="{{ route('register') }}" class="h-16 px-8 bg-brand-500 hover:bg-brand-400 text-black rounded-2xl flex items-center justify-center font-black text-sm uppercase tracking-widest transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-brand-500/20">
+                        Get Started
                     </a>
-                    <a href="#fitur" class="h-16 px-10 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-2xl flex items-center justify-center font-black text-sm uppercase tracking-widest transition-all duration-300">
-                        View Features
+                    <a href="{{ asset('moneytrack.apk') }}" download class="h-16 px-8 bg-white hover:bg-gray-200 text-black rounded-2xl flex items-center justify-center font-black text-sm uppercase tracking-widest transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg shadow-white/20 gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Unduh APK
+                    </a>
+                    <a href="#fitur" class="h-16 px-8 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-2xl flex items-center justify-center font-black text-sm uppercase tracking-widest transition-all duration-300">
+                        Features
                     </a>
                 </div>
 
