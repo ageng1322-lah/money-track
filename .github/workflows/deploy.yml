@@ -35,6 +35,9 @@ jobs:
         protocol: ftp
         local-dir: ./laravel/ # Folder lokal yang mau di-upload
         server-dir: / # Sesuaikan dengan folder target di hosting Anda
+        passive: true         # Penting untuk shared hosting agar tidak ECONNRESET
+        timeout: 60000        # Timeout 60 detik supaya tidak disconnect terlalu cepat
+        log-level: verbose    # Tampilkan log detail untuk debug jika masih error
         exclude: |
           **/.git*
           **/.git*/**
