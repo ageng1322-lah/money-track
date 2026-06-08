@@ -64,23 +64,28 @@ jobs:
     - name: 🔍 Check deploy_package contents
       run: ls -la deploy_package/
 
-    - name: 🚀 Upload files via FTPS
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: 21
-        protocol: ftps
-        local-dir: ./deploy_package/
-        server-dir: /public_html/public_html/
-        security: loose
-        timeout: 60000
-        log-level: standard
-        exclude: |
-          **/.git*
-          **/.git*/**
-          .env
+    - name: � Install lftp
+      run: sudo apt-get install -y lftp
+
+    - name: 🚀 Upload files via lftp
+      env:
+        FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      run: |
+        lftp -c "
+        set ftp:ssl-allow yes;
+        set ftp:ssl-force no;
+        set ftp:passive-mode yes;
+        set net:timeout 30;
+        set net:max-retries 5;
+        set net:reconnect-interval-base 5;
+        set net:reconnect-interval-multiplier 1;
+        set ftp:ssl-protect-data yes;
+        open -u '$FTP_USERNAME','$FTP_PASSWORD' '$FTP_SERVER';
+        mirror --reverse --delete --verbose --parallel=5 deploy_package/ /;
+        bye
+        "
 
     - name: 🌐 Trigger extract script
       run: |
