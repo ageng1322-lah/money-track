@@ -25,29 +25,40 @@ jobs:
         cd laravel
         composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
+    - name: 🏗️ Setup Node & Build Frontend
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
     - name: 🏗️ Build frontend assets
       run: |
         cd laravel
-        npm install
+        npm ci
         npm run build
 
     - name: 📁 Prepare deploy folder
       run: |
         mkdir -p deploy_package
 
-        # Salin semua isi public/ ke root deploy (index.php, .htaccess, assets)
+        # Salin isi public/ ke root deploy (index.php, .htaccess, assets hasil build)
         cp -r laravel/public/. deploy_package/
 
-        # Salin semua folder & file Laravel ke root deploy
-        for dir in app bootstrap config database lang resources routes storage; do
-          cp -r laravel/$dir deploy_package/$dir
-        done
+        # Salin folder-folder Laravel
+        cp -r laravel/app deploy_package/app
+        cp -r laravel/bootstrap deploy_package/bootstrap
+        cp -r laravel/config deploy_package/config
+        cp -r laravel/database deploy_package/database
+        cp -r laravel/lang deploy_package/lang
+        cp -r laravel/resources deploy_package/resources
+        cp -r laravel/routes deploy_package/routes
+        cp -r laravel/storage deploy_package/storage
+        cp -r laravel/vendor deploy_package/vendor
 
+        # Salin file-file root
         cp laravel/artisan deploy_package/artisan
         cp laravel/composer.json deploy_package/composer.json
         cp laravel/composer.lock deploy_package/composer.lock
         cp laravel/.htaccess deploy_package/.htaccess
-        cp -r laravel/vendor deploy_package/vendor
 
     - name: 🗜️ Zip vendor folder
       run: |
@@ -72,6 +83,9 @@ if ($zip->open($file) === TRUE) {
     echo 'FAILED';
 }
 PHPSCRIPT
+
+    - name: 🔍 Check deploy_package contents
+      run: ls -la deploy_package/
 
     - name: 🚀 Upload files via FTPS
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -102,6 +116,6 @@ PHPSCRIPT
         if [ "$RESPONSE" = "200" ] && [ "$BODY" = "OK" ]; then
           echo "✅ Vendor extracted successfully"
         else
-          echo "❌ Extract failed"
+          echo "❌ Extract failed - HTTP $RESPONSE: $BODY"
           exit 1
         fi
