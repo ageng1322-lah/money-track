@@ -1,4 +1,4 @@
-name: Deploy Laravel to HostData
+name: Deploy Laravel via FTP
 
 on:
   push:
@@ -7,54 +7,91 @@ on:
 
 jobs:
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
 
     steps:
-      # Clone repository
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
 
-      # Setup PHP
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
+    - name: 🛠️ Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo, dom, filter, gd, json, libxml
 
-      # Install Composer Dependencies
-      - name: Install Composer Dependencies
-        working-directory: ./laravel
-        run: composer install --no-dev --optimize-autoloader
+    - name: 📦 Install Composer Dependencies
+      run: |
+        cd laravel
+        composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
-      # Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+    - name: 🏗️ Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
 
-      # Install NPM Dependencies
-      - name: Install NPM Dependencies
-        working-directory: ./laravel
-        run: npm install
+    - name: 🏗️ Build frontend assets
+      run: |
+        cd laravel
+        npm ci
+        npx vite build
 
-      # Build Vite Assets
-      - name: Build Assets
-        working-directory: ./laravel
-        run: npm run build
+    - name: 📁 Prepare deploy folder
+      run: |
+        mkdir -p deploy_package
+        cp -r laravel/public/. deploy_package/
+        cp -r laravel/app deploy_package/app
+        cp -r laravel/bootstrap deploy_package/bootstrap
+        cp -r laravel/config deploy_package/config
+        cp -r laravel/database deploy_package/database
+        cp -r laravel/lang deploy_package/lang
+        cp -r laravel/resources deploy_package/resources
+        cp -r laravel/routes deploy_package/routes
+        cp -r laravel/storage deploy_package/storage
+        cp -r laravel/vendor deploy_package/vendor
+        cp laravel/artisan deploy_package/artisan
+        cp laravel/composer.json deploy_package/composer.json
+        cp laravel/composer.lock deploy_package/composer.lock
+        cp laravel/.htaccess deploy_package/.htaccess
+        cp laravel/deploy-extract.php deploy_package/deploy-extract.php
 
-      # Remove unnecessary files
-      - name: Cleanup
-        run: |
-          rm -rf laravel/node_modules
-          rm -rf laravel/tests
-          rm -rf laravel/.git
+    - name: 🗜️ Zip vendor folder
+      run: |
+        cd deploy_package
+        zip -r vendor.zip vendor/
+        rm -rf vendor/
 
-      # Deploy to HostData via FTP
-      - name: FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./laravel/
-          server-dir: /
-          dangerous-clean-slate: false
+    - name: 🔍 Check deploy_package contents
+      run: ls -la deploy_package/
+
+    - name: 🚀 Upload files via FTPS
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        port: 21
+        protocol: ftps
+        local-dir: ./deploy_package/
+        server-dir: /public_html/
+        security: loose
+        timeout: 60000
+        log-level: standard
+        exclude: |
+          **/.git*
+          **/.git*/**
+          .env
+
+    - name: 🌐 Trigger extract script
+      run: |
+        sleep 5
+        RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/extract_out.txt "https://moneytrack.dappa.my.id/deploy-extract.php")
+        BODY=$(cat /tmp/extract_out.txt)
+        echo "HTTP Status: $RESPONSE"
+        echo "Response: $BODY"
+        if [ "$RESPONSE" = "200" ] && [ "$BODY" = "OK" ]; then
+          echo "Vendor extracted successfully"
+        else
+          echo "Extract failed - HTTP $RESPONSE: $BODY"
+          exit 1
+        fi
