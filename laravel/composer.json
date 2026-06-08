@@ -1,5 +1,5 @@
 {
-    "name": "MoneyTrack/api",
+    "name": "moneytrack/api",
     "description": "MoneyTrack Personal Finance API — Laravel + Livewire",
     "keywords": ["framework", "laravel", "MoneyTrack"],
     "license": "MIT",
