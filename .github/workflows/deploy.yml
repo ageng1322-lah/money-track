@@ -25,7 +25,7 @@ jobs:
         cd laravel
         composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
-    - name: 🏗️ Setup Node & Build Frontend
+    - name: 🏗️ Setup Node
       uses: actions/setup-node@v4
       with:
         node-version: '20'
@@ -39,11 +39,7 @@ jobs:
     - name: 📁 Prepare deploy folder
       run: |
         mkdir -p deploy_package
-
-        # Salin isi public/ ke root deploy (index.php, .htaccess, assets hasil build)
         cp -r laravel/public/. deploy_package/
-
-        # Salin folder-folder Laravel
         cp -r laravel/app deploy_package/app
         cp -r laravel/bootstrap deploy_package/bootstrap
         cp -r laravel/config deploy_package/config
@@ -53,36 +49,17 @@ jobs:
         cp -r laravel/routes deploy_package/routes
         cp -r laravel/storage deploy_package/storage
         cp -r laravel/vendor deploy_package/vendor
-
-        # Salin file-file root
         cp laravel/artisan deploy_package/artisan
         cp laravel/composer.json deploy_package/composer.json
         cp laravel/composer.lock deploy_package/composer.lock
         cp laravel/.htaccess deploy_package/.htaccess
+        cp laravel/deploy-extract.php deploy_package/deploy-extract.php
 
-    - name: 🗜️ Zip vendor folder
+    - name: �️ Zip vendor folder
       run: |
         cd deploy_package
         zip -r vendor.zip vendor/
         rm -rf vendor/
-
-    - name: 📝 Create extract script
-      run: |
-        cat > deploy_package/deploy-extract.php << 'PHPSCRIPT'
-<?php
-$zip = new ZipArchive;
-$file = __DIR__ . '/vendor.zip';
-if ($zip->open($file) === TRUE) {
-    $zip->extractTo(__DIR__);
-    $zip->close();
-    unlink($file);
-    unlink(__FILE__);
-    echo 'OK';
-} else {
-    http_response_code(500);
-    echo 'FAILED';
-}
-PHPSCRIPT
 
     - name: 🔍 Check deploy_package contents
       run: ls -la deploy_package/
@@ -107,15 +84,14 @@ PHPSCRIPT
 
     - name: 🌐 Trigger extract script
       run: |
-        echo "Waiting 5s for FTP to settle..."
         sleep 5
         RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/extract_out.txt "https://moneytrack.dappa.my.id/deploy-extract.php")
         BODY=$(cat /tmp/extract_out.txt)
         echo "HTTP Status: $RESPONSE"
         echo "Response: $BODY"
         if [ "$RESPONSE" = "200" ] && [ "$BODY" = "OK" ]; then
-          echo "✅ Vendor extracted successfully"
+          echo "Vendor extracted successfully"
         else
-          echo "❌ Extract failed - HTTP $RESPONSE: $BODY"
+          echo "Extract failed - HTTP $RESPONSE: $BODY"
           exit 1
         fi
