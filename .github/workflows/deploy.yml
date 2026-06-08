@@ -85,7 +85,7 @@ jobs:
     - name: 🌐 Trigger extract script
       run: |
         sleep 5
-        RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/extract_out.txt "https://moneytrack.dappa.my.id/deploy-extract.php")
+        RESPONSE=$(curl -sk -w "%{http_code}" -o /tmp/extract_out.txt "https://moneytrack.dappa.my.id/deploy-extract.php")
         BODY=$(cat /tmp/extract_out.txt)
         echo "HTTP Status: $RESPONSE"
         echo "Response: $BODY"
