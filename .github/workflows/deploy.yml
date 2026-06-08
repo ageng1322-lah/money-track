@@ -31,8 +31,10 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./laravel/ # Folder lokal yang mau di-upload (karena project Laravel Anda ada di folder laravel/)
-        server-dir: /public_html/ # Sesuaikan dengan folder target di hosting Anda (harus ada / di akhir)
+        port: 21
+        protocol: ftp
+        local-dir: ./laravel/ # Folder lokal yang mau di-upload
+        server-dir: /public_html/ # Sesuaikan dengan folder target di hosting Anda
         exclude: |
           **/.git*
           **/.git*/**
