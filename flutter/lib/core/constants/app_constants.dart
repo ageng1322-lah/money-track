@@ -22,13 +22,13 @@ class AppConstants {
     if (kIsWeb) {
       return 'http://127.0.0.1:8000/api/v1/';
     }
-    
+
     if (defaultTargetPlatform == TargetPlatform.android) {
       // 10.0.2.2 adalah IP localhost komputer untuk Android Emulator
       // Jika pakai HP Fisik, IP ini tidak jalan (akan fallback ke opsi bawah atau --dart-define)
-      return 'http://10.0.2.2:8000/api/v1/'; 
+      return 'http://10.0.2.2:8000/api/v1/';
     }
-    
+
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       // localhost untuk iOS Simulator
       return 'http://127.0.0.1:8000/api/v1/';
@@ -38,12 +38,12 @@ class AppConstants {
     return 'http://172.18.20.212:8000/api/v1/';
   }
 
-  static const int    connectTimeout = 30;
-  static const int    receiveTimeout = 30;
+  static const int connectTimeout = 30;
+  static const int receiveTimeout = 30;
 
   // Storage keys
-  static const String tokenKey   = 'auth_token';
-  static const String userKey    = 'cached_user';
+  static const String tokenKey = 'auth_token';
+  static const String userKey = 'cached_user';
 
   // Pagination
   static const int perPage = 15;
@@ -52,14 +52,14 @@ class AppConstants {
 class AppColors {
   AppColors._();
 
-  static const int primaryGreen  = 0xFF1D9E75;
-  static const int darkGreen     = 0xFF0F6E56;
-  static const int lightGreen    = 0xFFE1F5EE;
-  static const int incomeColor   = 0xFF1D9E75;
-  static const int expenseColor  = 0xFFE24B4A;
-  static const int background    = 0xFFF5F7FA;
-  static const int cardBg        = 0xFFFFFFFF;
-  static const int textPrimary   = 0xFF1A1A2E;
+  static const int primaryGreen = 0xFF1D9E75;
+  static const int darkGreen = 0xFF0F6E56;
+  static const int lightGreen = 0xFFE1F5EE;
+  static const int incomeColor = 0xFF1D9E75;
+  static const int expenseColor = 0xFFE24B4A;
+  static const int background = 0xFFF5F7FA;
+  static const int cardBg = 0xFFFFFFFF;
+  static const int textPrimary = 0xFF1A1A2E;
   static const int textSecondary = 0xFF6B7280;
-  static const int divider       = 0xFFE5E7EB;
+  static const int divider = 0xFFE5E7EB;
 }

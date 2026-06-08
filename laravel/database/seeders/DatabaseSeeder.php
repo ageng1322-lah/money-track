@@ -24,12 +24,22 @@ class DatabaseSeeder extends Seeder
             ['name'=>'Gaji',      'icon'=>'💼','type'=>'income', 'color'=>'#1D9E75'],
             ['name'=>'Freelance', 'icon'=>'💻','type'=>'income', 'color'=>'#0F6E56'],
             ['name'=>'Investasi', 'icon'=>'📈','type'=>'income', 'color'=>'#639922'],
+            ['name'=>'Bonus',     'icon'=>'🎁','type'=>'income', 'color'=>'#F1C40F'],
+            ['name'=>'Penjualan', 'icon'=>'📦','type'=>'income', 'color'=>'#E67E22'],
+            ['name'=>'Hadiah',    'icon'=>'🎈','type'=>'income', 'color'=>'#9B59B6'],
+
             ['name'=>'Makanan',   'icon'=>'🍔','type'=>'expense','color'=>'#E24B4A'],
             ['name'=>'Transport', 'icon'=>'🚗','type'=>'expense','color'=>'#D85A30'],
             ['name'=>'Belanja',   'icon'=>'🛍️','type'=>'expense','color'=>'#D4537E'],
             ['name'=>'Kesehatan', 'icon'=>'💊','type'=>'expense','color'=>'#378ADD'],
             ['name'=>'Hiburan',   'icon'=>'🎮','type'=>'expense','color'=>'#7F77DD'],
             ['name'=>'Tagihan',   'icon'=>'📄','type'=>'expense','color'=>'#BA7517'],
+            ['name'=>'Pendidikan','icon'=>'🎓','type'=>'expense','color'=>'#2ECC71'],
+            ['name'=>'Pulsa',     'icon'=>'📱','type'=>'expense','color'=>'#1ABC9C'],
+            ['name'=>'Olahraga',  'icon'=>'⚽','type'=>'expense','color'=>'#3498DB'],
+            ['name'=>'Donasi',    'icon'=>'❤️','type'=>'expense','color'=>'#E74C3C'],
+            ['name'=>'Perbaikan', 'icon'=>'🛠️','type'=>'expense','color'=>'#95A5A6'],
+            ['name'=>'Pajak',     'icon'=>'🏛️','type'=>'expense','color'=>'#34495E'],
         ];
 
         $catModels = [];

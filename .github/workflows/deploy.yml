@@ -1,0 +1,40 @@
+name: Deploy Laravel via FTP
+
+on:
+  push:
+    branches:
+      - main # Deployment berjalan otomatis ketika push ke branch main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
+
+    - name: 🛠️ Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2' # Sesuaikan dengan versi PHP di hosting Anda
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, libxml, pdo
+
+    - name: 📦 Install Composer Dependencies
+      run: |
+        cd laravel
+        composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+    - name: 🚀 Sync files via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./laravel/ # Folder lokal yang mau di-upload (karena project Laravel Anda ada di folder laravel/)
+        server-dir: /public_html/ # Sesuaikan dengan folder target di hosting Anda (harus ada / di akhir)
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          .env
