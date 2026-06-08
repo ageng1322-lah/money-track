@@ -48,7 +48,7 @@ class DashboardScreen extends ConsumerWidget {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'MoneyTrack',
+                        user?.name ?? 'MoneyTrack',
                         style: GoogleFonts.spaceGrotesk(
                           color: AppTheme.primary,
                           fontSize: 22,
