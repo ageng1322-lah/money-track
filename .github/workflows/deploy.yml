@@ -32,12 +32,12 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         port: 21
-        protocol: ftp
+        protocol: ftps        # Pakai FTPS (FTP over TLS) karena server menolak plain FTP
         local-dir: ./laravel/ # Folder lokal yang mau di-upload
-        server-dir: / # Sesuaikan dengan folder target di hosting Anda
-        passive: true         # Penting untuk shared hosting agar tidak ECONNRESET
-        timeout: 60000        # Timeout 60 detik supaya tidak disconnect terlalu cepat
-        log-level: verbose    # Tampilkan log detail untuk debug jika masih error
+        server-dir: /         # Sesuaikan dengan folder target di hosting Anda
+        security: loose       # Perlu untuk hosting yang pakai self-signed certificate
+        timeout: 60000        # Timeout 60 detik
+        log-level: verbose    # Log detail untuk debug
         exclude: |
           **/.git*
           **/.git*/**
