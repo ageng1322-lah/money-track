@@ -17,7 +17,7 @@ jobs:
     - name: 🛠️ Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2' # Sesuaikan dengan versi PHP di hosting Anda
+        php-version: '8.4' # Diperbarui ke 8.4 untuk menyesuaikan versi lokal Anda
         extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, libxml, pdo
 
     - name: 📦 Install Composer Dependencies
