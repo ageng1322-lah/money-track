@@ -1,0 +1,20 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Blokir akses langsung ke folder sensitif
+    RewriteRule ^(app|bootstrap|config|database|lang|resources|routes|storage|tests|vendor)(/|$) - [F,L]
+
+    # Blokir akses ke file sensitif
+    RewriteRule ^(\.env|composer\.(json|lock)|artisan|phpunit\.xml|package\.json) - [F,L]
+
+    # Arahkan semua request ke index.php (dari public/)
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Blokir akses ke file sensitif via FilesMatch
+<FilesMatch "^(\.env|composer\.json|composer\.lock|artisan|phpunit\.xml)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

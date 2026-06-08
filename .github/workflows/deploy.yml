@@ -3,7 +3,7 @@ name: Deploy Laravel via FTP
 on:
   push:
     branches:
-      - main # Deployment berjalan otomatis ketika push ke branch main
+      - main
 
 jobs:
   deploy:
@@ -17,29 +17,91 @@ jobs:
     - name: 🛠️ Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.4' # Diperbarui ke 8.4 untuk menyesuaikan versi lokal Anda
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, libxml, pdo
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo, dom, filter, gd, json, libxml
 
     - name: 📦 Install Composer Dependencies
       run: |
         cd laravel
         composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
-    - name: 🚀 Sync files via FTP
+    - name: 🏗️ Build frontend assets
+      run: |
+        cd laravel
+        npm install
+        npm run build
+
+    - name: 📁 Prepare deploy folder
+      run: |
+        mkdir -p deploy_package
+
+        # Salin semua isi public/ ke root deploy (index.php, .htaccess, assets)
+        cp -r laravel/public/. deploy_package/
+
+        # Salin semua folder & file Laravel ke root deploy
+        for dir in app bootstrap config database lang resources routes storage; do
+          cp -r laravel/$dir deploy_package/$dir
+        done
+
+        cp laravel/artisan deploy_package/artisan
+        cp laravel/composer.json deploy_package/composer.json
+        cp laravel/composer.lock deploy_package/composer.lock
+        cp laravel/.htaccess deploy_package/.htaccess
+        cp -r laravel/vendor deploy_package/vendor
+
+    - name: 🗜️ Zip vendor folder
+      run: |
+        cd deploy_package
+        zip -r vendor.zip vendor/
+        rm -rf vendor/
+
+    - name: 📝 Create extract script
+      run: |
+        cat > deploy_package/deploy-extract.php << 'PHPSCRIPT'
+<?php
+$zip = new ZipArchive;
+$file = __DIR__ . '/vendor.zip';
+if ($zip->open($file) === TRUE) {
+    $zip->extractTo(__DIR__);
+    $zip->close();
+    unlink($file);
+    unlink(__FILE__);
+    echo 'OK';
+} else {
+    http_response_code(500);
+    echo 'FAILED';
+}
+PHPSCRIPT
+
+    - name: 🚀 Upload files via FTPS
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         port: 21
-        protocol: ftps        # Pakai FTPS (FTP over TLS) karena server menolak plain FTP
-        local-dir: ./laravel/ # Folder lokal yang mau di-upload
-        server-dir: /         # Sesuaikan dengan folder target di hosting Anda
-        security: loose       # Perlu untuk hosting yang pakai self-signed certificate
-        timeout: 60000        # Timeout 60 detik
-        log-level: verbose    # Log detail untuk debug
+        protocol: ftps
+        local-dir: ./deploy_package/
+        server-dir: /
+        security: loose
+        timeout: 60000
+        log-level: standard
         exclude: |
           **/.git*
           **/.git*/**
-          **/node_modules/**
           .env
+
+    - name: 🌐 Trigger extract script
+      run: |
+        echo "Waiting 5s for FTP to settle..."
+        sleep 5
+        RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/extract_out.txt "https://moneytrack.dappa.my.id/deploy-extract.php")
+        BODY=$(cat /tmp/extract_out.txt)
+        echo "HTTP Status: $RESPONSE"
+        echo "Response: $BODY"
+        if [ "$RESPONSE" = "200" ] && [ "$BODY" = "OK" ]; then
+          echo "✅ Vendor extracted successfully"
+        else
+          echo "❌ Extract failed"
+          exit 1
+        fi
