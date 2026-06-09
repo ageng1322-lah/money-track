@@ -61,14 +61,21 @@ class DashboardService
         $cacheKey = "dashboard.chart.{$userId}.{$year}";
 
         return Cache::remember($cacheKey, 300, function () use ($userId, $year) {
+            $driver = DB::connection()->getDriverName();
+            $monthExpr = match ($driver) {
+                'sqlite' => "cast(strftime('%m', date) as integer)",
+                'pgsql'  => "EXTRACT(MONTH FROM date)",
+                default  => "MONTH(date)",
+            };
+
             $months = Transaction::where('user_id', $userId)
                 ->whereYear('date', $year)
                 ->select(
-                    DB::raw('MONTH(date) as month'),
+                    DB::raw("$monthExpr as month"),
                     DB::raw('SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income'),
                     DB::raw('SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as expense')
                 )
-                ->groupBy(DB::raw('MONTH(date)'))
+                ->groupBy(DB::raw($monthExpr))
                 ->orderBy('month')
                 ->get()
                 ->keyBy('month');
