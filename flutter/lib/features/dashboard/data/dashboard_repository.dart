@@ -13,7 +13,7 @@ class DashboardRepository {
     List<ChartDataPoint> chartData,
     List<TransactionEntity> recent,
   })> getDashboard({int? month, int? year}) async {
-    final res = await _dio.get('/dashboard', queryParameters: {
+    final res = await _dio.get('dashboard', queryParameters: {
       if (month != null) 'month': month,
       if (year  != null) 'year':  year,
     });

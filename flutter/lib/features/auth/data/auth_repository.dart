@@ -79,7 +79,7 @@ class AuthRepository {
     name:      json['name']       as String,
     email:     json['email']      as String,
     photoUrl:  json['photo_url']  as String?,
-    createdAt: DateTime.parse(json['created_at'] as String),
+    createdAt: DateTime.parse((json['created_at'] as String).replaceFirst(' ', 'T')),
     isVerified: json['email_verified_at'] != null,
   );
 }

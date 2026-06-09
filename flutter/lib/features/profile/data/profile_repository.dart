@@ -48,10 +48,11 @@ class ProfileRepository {
   }
 
   UserEntity _mapUser(Map<String, dynamic> json) => UserEntity(
-    id:        json['id']         as int,
-    name:      json['name']       as String,
-    email:     json['email']      as String,
-    photoUrl:  json['photo_url']  as String?,
-    createdAt: DateTime.parse(json['created_at'] as String),
+    id:         json['id']         as int,
+    name:       json['name']       as String,
+    email:      json['email']      as String,
+    photoUrl:   json['photo_url']  as String?,
+    createdAt:  DateTime.parse((json['created_at'] as String).replaceFirst(' ', 'T')),
+    isVerified: json['email_verified_at'] != null,
   );
 }
